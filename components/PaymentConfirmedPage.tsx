@@ -63,6 +63,16 @@ export const PaymentConfirmedPage: React.FC<PaymentConfirmedPageProps> = ({ user
                                 <p className="text-indigo-300/80 text-xs md:text-sm">Wanda will personally channel your message on video</p>
                             </div>
                         </div>
+
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-indigo-600/20 flex items-center justify-center flex-shrink-0">
+                                <i className="fas fa-envelope-open-text text-yellow-500"></i>
+                            </div>
+                            <div>
+                                <h3 className="text-indigo-100 font-semibold text-sm md:text-base">Need Support?</h3>
+                                <p className="text-indigo-300/80 text-xs md:text-sm">Contact <a href="mailto:info@wandareadings.com" className="text-yellow-500 hover:text-yellow-400 underline">info@wandareadings.com</a></p>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-2xl p-6 mt-6">

@@ -284,6 +284,7 @@ const App: React.FC = () => {
             <div className="h-px w-8 md:w-16 bg-indigo-900"></div>
           </div>
           <p className="text-[9px] md:text-[10px] text-indigo-700 uppercase tracking-[0.3em] font-medium">&copy; 2026 Ethereal Insights Global. Secure SSL Encryption Active.</p>
+          <p className="text-[9px] md:text-[10px] text-indigo-700 uppercase tracking-[0.3em] font-medium mt-2 hover:text-indigo-400 transition-colors cursor-pointer"><a href="mailto:info@wandareadings.com">info@wandareadings.com</a></p>
         </div>
       </footer>
     </div>
