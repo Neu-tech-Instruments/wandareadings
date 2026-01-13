@@ -17,6 +17,7 @@ interface IntakeFlowProps {
     reviews: Review[];
     isLoading: boolean;
     onStepChange?: (step: IntakeSubStep) => void;
+    initialStep?: IntakeSubStep;
 }
 
 export const IntakeFlow: React.FC<IntakeFlowProps> = ({
@@ -26,9 +27,10 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     onBack,
     reviews,
     isLoading,
-    onStepChange
+    onStepChange,
+    initialStep = IntakeSubStep.NAME
 }) => {
-    const [intakeSubStep, setIntakeSubStep] = useState<IntakeSubStep>(IntakeSubStep.NAME);
+    const [intakeSubStep, setIntakeSubStep] = useState<IntakeSubStep>(initialStep);
 
     const nextIntakeStep = () => {
         if (intakeSubStep === IntakeSubStep.DELIVERY_INFO) {

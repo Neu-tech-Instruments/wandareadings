@@ -20,6 +20,7 @@ View your app in AI Studio: https://ai.studio/apps/drive/1H98q_ZjXcEIowhGvTiUc5U
    `npm run dev`
 
 #Intake Form: wandareadings.com/?view=IntakeFlow
+#Delivery Info: wandareadings.com/?view=DeliveryInfo
 #Success Page: wandareadings.com/?view=PaymentConfirmedPage
 #Result Page: wandareadings.com/?view=ReadingRevealPage
 #Home: wandareadings.com/?view=LandingPage

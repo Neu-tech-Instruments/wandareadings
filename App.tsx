@@ -77,6 +77,11 @@ const App: React.FC = () => {
           case 'intakeflow':
             setStep(AppStep.INTAKE);
             break;
+          case 'delivery':
+          case 'deliveryinfo':
+            setStep(AppStep.INTAKE);
+            setCurrentIntakeStep(IntakeSubStep.DELIVERY_INFO);
+            break;
           case 'success':
           case 'confirmed':
           case 'paymentconfirmedpage':
@@ -162,7 +167,10 @@ const App: React.FC = () => {
     handleInit();
   }, []);
 
-  const handleStart = () => setStep(AppStep.INTAKE);
+  const handleStart = () => {
+    setStep(AppStep.INTAKE);
+    setCurrentIntakeStep(IntakeSubStep.NAME);
+  };
 
   const handleIntakeComplete = () => {
     localStorage.setItem('wanda_intake_data', JSON.stringify(userData));
@@ -218,6 +226,7 @@ const App: React.FC = () => {
             reviews={reviews}
             isLoading={isLocalizing}
             onStepChange={setCurrentIntakeStep}
+            initialStep={currentIntakeStep}
           />
         )}
 
