@@ -17,16 +17,6 @@ export const ReadingRevealPage: React.FC<ReadingRevealPageProps> = ({ userData, 
     return (
         <div className="flex-grow flex flex-col items-center justify-center px-6 text-center relative w-full pb-12">
 
-            <ReviewSection reviews={reviews} isLoading={isLoading} />
-            <div className="mt-6 text-left max-w-xl mx-auto bg-black/40 p-4 rounded-lg text-indigo-100">
-                <h3 className="text-yellow-500 font-bold mb-2">⚡ Delivery Information</h3>
-                <ul className="list-disc list-inside space-y-1">
-                    <li>Same Hour Reading: Instant clarity delivered within the same hour of your purchase.</li>
-                    <li>Same Day Reading: A thorough and carefully detailed response delivered within 24 hours.</li>
-                    <li>Legal Disclaimer: By purchasing this reading you confirm you are 18+ and understand it is for entertainment purposes only. It does not replace professional advice of a legal, medical, financial, or psychological nature. All sales are final.</li>
-                </ul>
-            </div>
-
             <div className="glass-effect rounded-3xl border border-yellow-500/20 overflow-hidden relative shadow-2xl mt-8 max-w-4xl w-full">
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent"></div>
 
@@ -107,6 +97,10 @@ export const ReadingRevealPage: React.FC<ReadingRevealPageProps> = ({ userData, 
                     </button>
                     <button onClick={() => window.location.href = window.location.pathname} className="w-full sm:w-auto text-[10px] bg-indigo-600/40 px-8 py-3 rounded-full text-indigo-100 font-bold hover:bg-indigo-600 transition-all uppercase tracking-widest border border-indigo-500/20">Return Home</button>
                 </div>
+            </div>
+
+            <div className="mt-12 w-full max-w-4xl">
+                <ReviewSection reviews={reviews} isLoading={isLoading} />
             </div>
         </div>
     );
