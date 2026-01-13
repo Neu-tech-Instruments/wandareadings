@@ -1,0 +1,7 @@
+{
+  "name": "Ethereal Insights by Wanda",
+  "description": "A mystical and professional psychic reading platform inspired by premium Etsy services, featuring AI-powered initial insights and a streamlined booking flow.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
