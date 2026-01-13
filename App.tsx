@@ -83,11 +83,47 @@ const App: React.FC = () => {
             break;
           case 'reveal':
           case 'reading':
-            setStep(AppStep.PROCESSING);
-            // Ensure dummy reading data for preview
-            if (!reading) {
-              setReading({ energySignature: "Radiant Sun", teaser: "A bright future awaits..." });
-              setFullReading({ intro: "Guided by the stars...", auraAnalysis: "Your aura is glowing...", vision: "I see a path...", guidance: "Trust your intuition.", closing: "Blessings." });
+            // Reading Retrieval Flow (Magic Link)
+            // Parse user data from URL params if available
+            const name = urlParams.get('name');
+            const birthDate = urlParams.get('dob');
+            const partnerName = urlParams.get('partner');
+            const partnerBirthDate = urlParams.get('partnerDob');
+            const readingType = urlParams.get('type') || 'Love & Relationships';
+            const question = urlParams.get('q') || '';
+
+            if (name && birthDate) {
+              const retrievedData: UserData = {
+                name,
+                birthDate,
+                partnerName: partnerName || '',
+                partnerBirthDate: partnerBirthDate || '',
+                question,
+                readingType
+              };
+              setUserData(retrievedData);
+              setStep(AppStep.PROCESSING);
+              setLoadingText("Unsealing your destiny...");
+
+              // Trigger reading generation
+              try {
+                const [teaserResult, fullResult] = await Promise.all([
+                  getInitialReading(retrievedData),
+                  getFullReading(retrievedData)
+                ]);
+                setReading(teaserResult);
+                setFullReading(fullResult);
+              } catch (err) {
+                console.error("Failed to retrieve reading:", err);
+                setLoadingText("The stars are clouded. Please try again.");
+              }
+            } else {
+              // Fallback if just ?view=reveal without params (Debug mode)
+              setStep(AppStep.PROCESSING);
+              if (!reading) {
+                setReading({ energySignature: "Radiant Sun", teaser: "A bright future awaits..." });
+                setFullReading({ intro: "Guided by the stars...", auraAnalysis: "Your aura is glowing...", vision: "I see a path...", guidance: "Trust your intuition.", closing: "Blessings." });
+              }
             }
             break;
         }
