@@ -122,7 +122,11 @@ const App: React.FC = () => {
               setStep(AppStep.PROCESSING);
               if (!reading) {
                 setReading({ energySignature: "Radiant Sun", teaser: "A bright future awaits..." });
-                setFullReading({ intro: "Guided by the stars...", auraAnalysis: "Your aura is glowing...", vision: "I see a path...", guidance: "Trust your intuition.", closing: "Blessings." });
+                setFullReading({
+                  paragraph1: "The energy around you is shifting...",
+                  paragraph2: "Your answer lies within...",
+                  paragraph3: "Trust the path ahead..."
+                });
               }
             }
             break;

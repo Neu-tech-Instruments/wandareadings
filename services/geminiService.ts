@@ -27,11 +27,9 @@ export interface LocalizedContent {
 }
 
 export interface FullReadingContent {
-  intro: string;
-  auraAnalysis: string;
-  vision: string;
-  guidance: string;
-  closing: string;
+  paragraph1: string;
+  paragraph2: string;
+  paragraph3: string;
 }
 
 export const getInitialReading = async (userData: UserData): Promise<ReadingResponse> => {
@@ -44,7 +42,7 @@ export const getInitialReading = async (userData: UserData): Promise<ReadingResp
     if (!ai) throw new Error("AI not initialized");
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.0-flash-exp',
       contents: `You are Wanda, a world-class spiritual intuitive and psychic. 
       The user is seeking a reading about: ${userData.readingType}. 
       User Name: ${userData.name}, Born: ${userData.birthDate}.
@@ -92,31 +90,38 @@ export const getFullReading = async (userData: UserData): Promise<FullReadingCon
       ? `Their partner: ${userData.partnerName} (Born: ${userData.partnerBirthDate}).`
       : "No specific partner mentioned.";
 
+    // Fallback if no question provided (e.g. magic link with minimal params)
+    const questionContext = userData.question ? `Question: "${userData.question}"` : "General love and destiny inquiry.";
+
     const ai = getAI();
     if (!ai) throw new Error("AI not initialized");
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
-      contents: `You are Wanda, providing the FULL PAID PSYCHIC READING for:
+      model: 'gemini-2.0-flash-exp',
+      contents: `You are Wanda, providing a deep, personalized psychic reading for:
       Seeker: ${userData.name} (Born: ${userData.birthDate})
       Reading Type: ${userData.readingType}
-      Question: "${userData.question}"
+      ${questionContext}
       ${partnerContext}
 
-      Provide a deep, 5-section spiritual report. Be compassionate, specific, and soulful.
-      The report must be structured for the "Soul Portal".`,
+      Instructions:
+      Write EXACTLY 3 distinct paragraphs (NO titles, just the text):
+      
+      Paragraph 1 (The Connection): Tune into the energy of ${userData.name} ${userData.partnerName ? `and ${userData.partnerName}` : ""} right now. Describe the vibration, the emotional landscape, and what you feel in their aura. Be specific and mystical.
+      
+      Paragraph 2 (The Truth): Directly answer their question: "${userData.question}". Don't be vague. Tell them what you see in the cards/stars about this specific situation. Use their name.
+      
+      Paragraph 3 (The Path): Provide clear, actionable spiritual guidance for the future. What is coming next? What should they different? End with a powerful blessing.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            intro: { type: Type.STRING, description: "A warm, personalized opening." },
-            auraAnalysis: { type: Type.STRING, description: "Deep analysis of their energy fields." },
-            vision: { type: Type.STRING, description: "The core psychic visions and messages from spirit." },
-            guidance: { type: Type.STRING, description: "Direct advice and next steps." },
-            closing: { type: Type.STRING, description: "A final blessing." }
+            paragraph1: { type: Type.STRING, description: "Energy analysis and connection insight." },
+            paragraph2: { type: Type.STRING, description: "Direct answer to the user's question." },
+            paragraph3: { type: Type.STRING, description: "Future path, guidance, and blessing." }
           },
-          required: ["intro", "auraAnalysis", "vision", "guidance", "closing"]
+          required: ["paragraph1", "paragraph2", "paragraph3"]
         },
       },
     });
@@ -125,11 +130,9 @@ export const getFullReading = async (userData: UserData): Promise<FullReadingCon
   } catch (error) {
     console.error("Full Reading Error:", error);
     return {
-      intro: "Welcome to your sanctuary, dear soul. I have spent time in meditation over your energy.",
-      auraAnalysis: "Your aura pulses with a resilient golden hue, though I detect shadows near the heart chakra that seek release.",
-      vision: "I see a bridge forming between two shores. One is your past, the other a future where a specific conversation changes everything.",
-      guidance: "Wait for the moon to be at its peak before making your move. Trust the silence between words.",
-      closing: "Go in peace, for the ancestors walk beside you."
+      paragraph1: `I am sensing a powerful shift in your energy field, ${userData.name}. The cards indicate a period of transformation where old patterns are falling away to make room for a new, vibrational match in love.`,
+      paragraph2: " regarding your question, I see that patience is your greatest ally right now. The universe is rearranging circumstances behind the scenes to alignment with your true desires.",
+      paragraph3: "Moving forward, focus on self-love and setting clear boundaries. A significant sign will appear within the next lunar cycle confirming you are on the right path. Blessings to you."
     };
   }
 };

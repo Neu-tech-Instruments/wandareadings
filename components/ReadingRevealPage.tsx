@@ -52,33 +52,38 @@ export const ReadingRevealPage: React.FC<ReadingRevealPageProps> = ({ userData, 
                         </div>
                     )}
 
-                    <section className="space-y-4 text-left">
-                        <h3 className="text-lg md:text-xl font-serif-mystic text-indigo-100 flex items-center gap-3">
-                            <i className="fas fa-feather-pointed text-xs text-yellow-500"></i> Wanda's Personal Message
-                        </h3>
-                        <p className="text-indigo-100/90 leading-relaxed font-light text-base md:text-lg italic border-l-2 border-indigo-500/20 pl-4 md:pl-6">"{fullReading.intro}"</p>
-                    </section>
-
-                    <section className="bg-indigo-950/20 p-6 md:p-8 rounded-2xl border border-indigo-500/10 space-y-4 shadow-sm text-left">
-                        <h3 className="text-lg md:text-xl font-serif-mystic text-indigo-100 flex items-center gap-3">
-                            <i className="fas fa-atom text-xs text-yellow-500 animate-pulse"></i> Energetic Alignment
-                        </h3>
-                        <p className="text-indigo-100/80 leading-relaxed font-light text-sm md:text-base">{fullReading.auraAnalysis}</p>
-                    </section>
-
-                    <section className="space-y-4 text-left">
-                        <h3 className="text-lg md:text-xl font-serif-mystic text-indigo-100 flex items-center gap-3">
-                            <i className="fas fa-eye text-xs text-yellow-500"></i> The Channelling
-                        </h3>
-                        <div className="prose prose-invert max-w-none">
-                            <p className="text-indigo-50 leading-relaxed text-base md:text-lg font-medium">{fullReading.vision}</p>
+                    <div className="bg-yellow-500/5 p-6 md:p-10 rounded-2xl border border-yellow-500/10 shadow-inner text-left space-y-8">
+                        <div className="space-y-4">
+                            <h3 className="text-sm md:text-base font-bold text-yellow-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <i className="fas fa-link"></i> The Connection
+                            </h3>
+                            <p className="text-indigo-100/90 leading-relaxed font-serif-mystic text-lg md:text-xl font-light">
+                                {fullReading.paragraph1}
+                            </p>
                         </div>
-                    </section>
 
-                    <section className="bg-yellow-500/5 border-l-4 border-yellow-500/40 p-6 md:p-8 space-y-4 rounded-r-2xl text-left">
-                        <h3 className="text-lg md:text-xl font-serif-mystic text-indigo-200">Sacred Guidance</h3>
-                        <p className="text-indigo-100/80 leading-relaxed text-sm md:text-base">{fullReading.guidance}</p>
-                    </section>
+                        <div className="w-full h-px bg-yellow-500/20"></div>
+
+                        <div className="space-y-4">
+                            <h3 className="text-sm md:text-base font-bold text-yellow-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <i className="fas fa-eye"></i> The Truth
+                            </h3>
+                            <p className="text-indigo-50 leading-relaxed font-serif-mystic text-lg md:text-xl font-light pl-4 border-l-2 border-yellow-500/40">
+                                "{fullReading.paragraph2}"
+                            </p>
+                        </div>
+
+                        <div className="w-full h-px bg-yellow-500/20"></div>
+
+                        <div className="space-y-4">
+                            <h3 className="text-sm md:text-base font-bold text-yellow-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <i className="fas fa-route"></i> The Path Forward
+                            </h3>
+                            <p className="text-indigo-100/90 leading-relaxed font-serif-mystic text-lg md:text-xl font-light">
+                                {fullReading.paragraph3}
+                            </p>
+                        </div>
+                    </div>
 
                     <section className="bg-black/40 p-6 md:p-10 rounded-2xl border border-indigo-900 flex flex-col items-center text-center space-y-5">
                         <div className="w-16 h-16 rounded-full bg-indigo-600/10 flex items-center justify-center shadow-inner group">
