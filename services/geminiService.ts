@@ -2,7 +2,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { UserData, ReadingResponse, Review } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAI = () => {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn("Gemini API Key is missing - running in fallback mode");
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export interface LocalizedContent {
   reviews: Review[];
@@ -29,9 +36,12 @@ export interface FullReadingContent {
 
 export const getInitialReading = async (userData: UserData): Promise<ReadingResponse> => {
   try {
-    const partnerContext = userData.partnerName 
-      ? `They are also asking about their connection with ${userData.partnerName} (Born: ${userData.partnerBirthDate}).` 
+    const partnerContext = userData.partnerName
+      ? `They are also asking about their connection with ${userData.partnerName} (Born: ${userData.partnerBirthDate}).`
       : "";
+
+    const ai = getAI();
+    if (!ai) throw new Error("AI not initialized");
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -78,9 +88,12 @@ export const getInitialReading = async (userData: UserData): Promise<ReadingResp
 
 export const getFullReading = async (userData: UserData): Promise<FullReadingContent> => {
   try {
-    const partnerContext = userData.partnerName 
-      ? `Their partner: ${userData.partnerName} (Born: ${userData.partnerBirthDate}).` 
+    const partnerContext = userData.partnerName
+      ? `Their partner: ${userData.partnerName} (Born: ${userData.partnerBirthDate}).`
       : "No specific partner mentioned.";
+
+    const ai = getAI();
+    if (!ai) throw new Error("AI not initialized");
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
@@ -122,8 +135,8 @@ export const getFullReading = async (userData: UserData): Promise<FullReadingCon
 };
 
 export const localizeExperience = async (
-  reviews: Review[], 
-  latitude: number | null, 
+  reviews: Review[],
+  latitude: number | null,
   longitude: number | null
 ): Promise<LocalizedContent> => {
   const browserLocale = Intl.DateTimeFormat().resolvedOptions().locale;
@@ -137,6 +150,9 @@ export const localizeExperience = async (
   `;
 
   try {
+    const ai = getAI();
+    if (!ai) throw new Error("AI not initialized");
+
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `You are localizing a psychic service app into the primary language of: ${locationInfo}. 
