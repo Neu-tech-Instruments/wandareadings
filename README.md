@@ -18,3 +18,8 @@ View your app in AI Studio: https://ai.studio/apps/drive/1H98q_ZjXcEIowhGvTiUc5U
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+#Intake Form: wandareadings.com/?view=IntakeFlow
+#Success Page: wandareadings.com/?view=PaymentConfirmedPage
+#Result Page: wandareadings.com/?view=ReadingRevealPage
+#Home: wandareadings.com/?view=LandingPage

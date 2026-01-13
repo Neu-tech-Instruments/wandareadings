@@ -70,19 +70,23 @@ const App: React.FC = () => {
         // Debugging / Direct Navigation Routes
         switch (debugView.toLowerCase()) {
           case 'landing':
+          case 'landingpage':
             setStep(AppStep.LANDING);
             break;
           case 'intake':
+          case 'intakeflow':
             setStep(AppStep.INTAKE);
             break;
           case 'success':
           case 'confirmed':
+          case 'paymentconfirmedpage':
             setStep(AppStep.PAYMENT_CONFIRMED);
             // Ensure some dummy data exists so it doesn't crash
             if (!userData.name) setUserData({ ...userData, name: "Mystic Seeker", birthDate: "1990-01-01" });
             break;
           case 'reveal':
           case 'reading':
+          case 'readingrevealpage':
             // Reading Retrieval Flow (Magic Link)
             // Parse user data from URL params if available
             const name = urlParams.get('name');
@@ -118,7 +122,7 @@ const App: React.FC = () => {
                 setLoadingText("The stars are clouded. Please try again.");
               }
             } else {
-              // Fallback if just ?view=reveal without params (Debug mode)
+              // Fallback if just ?view=ReadingRevealPage without params (Debug mode)
               setStep(AppStep.PROCESSING);
               if (!reading) {
                 setReading({ energySignature: "Radiant Sun", teaser: "A bright future awaits..." });
