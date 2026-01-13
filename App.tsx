@@ -57,6 +57,7 @@ const App: React.FC = () => {
 
       const urlParams = new URLSearchParams(window.location.search);
       const paymentSuccess = urlParams.get('payment_success');
+      const debugView = urlParams.get('view');
 
       if (paymentSuccess === 'true') {
         const savedData = localStorage.getItem('wanda_intake_data');
@@ -64,6 +65,31 @@ const App: React.FC = () => {
           const parsed = JSON.parse(savedData);
           setUserData(parsed);
           setStep(AppStep.PAYMENT_CONFIRMED);
+        }
+      } else if (debugView) {
+        // Debugging / Direct Navigation Routes
+        switch (debugView.toLowerCase()) {
+          case 'landing':
+            setStep(AppStep.LANDING);
+            break;
+          case 'intake':
+            setStep(AppStep.INTAKE);
+            break;
+          case 'success':
+          case 'confirmed':
+            setStep(AppStep.PAYMENT_CONFIRMED);
+            // Ensure some dummy data exists so it doesn't crash
+            if (!userData.name) setUserData({ ...userData, name: "Mystic Seeker", birthDate: "1990-01-01" });
+            break;
+          case 'reveal':
+          case 'reading':
+            setStep(AppStep.PROCESSING);
+            // Ensure dummy reading data for preview
+            if (!reading) {
+              setReading({ energySignature: "Radiant Sun", teaser: "A bright future awaits..." });
+              setFullReading({ intro: "Guided by the stars...", auraAnalysis: "Your aura is glowing...", vision: "I see a path...", guidance: "Trust your intuition.", closing: "Blessings." });
+            }
+            break;
         }
       }
 
