@@ -87,6 +87,7 @@ export const ReadingRevealPage: React.FC<ReadingRevealPageProps> = ({ userData, 
                     <div className="z-10 mb-4 space-y-1">
                         <p className="font-serif-mystic text-indigo-100 text-lg">{userData.name}</p>
                         <p className="text-[9px] text-indigo-400 uppercase tracking-widest">{getTodayDate()}</p>
+                        <p className="text-[7px] text-indigo-400 uppercase tracking-widest">Sacred Insight • Practitioner ID: #W882</p>
                     </div>
                 </div>
             </div>
@@ -153,8 +154,8 @@ export const ReadingRevealPage: React.FC<ReadingRevealPageProps> = ({ userData, 
 
 
                     <div className="text-center pt-8 border-t border-indigo-900/50">
-                        <p className="font-serif-mystic text-yellow-500/90 italic text-xl md:text-2xl mb-2">{fullReading.closing}</p>
-                        <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-indigo-500 font-bold">Certified Ethereal Reading • Practitioner ID: #W882</p>
+                        <p className="font-serif italic text-lg text-yellow-700">{fullReading.closing}</p>
+                        <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-indigo-500 font-bold">Sacred Insight • Practitioner ID: #W882</p>
                     </div>
                 </div>
 
