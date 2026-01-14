@@ -81,12 +81,17 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                 <input
                                     autoFocus
                                     type="date"
+                                    min="1920-01-01"
+                                    max={new Date().toISOString().split('T')[0]}
                                     className="w-full max-w-xs bg-black/40 border border-indigo-900 rounded-2xl px-6 py-4 text-xl text-center outline-none text-indigo-100 focus:border-yellow-500 transition-all"
                                     value={userData.birthDate}
                                     onChange={e => setUserData({ ...userData, birthDate: e.target.value })}
                                 />
-                                {userData.birthDate && (
+                                {userData.birthDate && parseInt(userData.birthDate.split('-')[0]) > 1900 && (
                                     <button onClick={nextIntakeStep} className="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs transition-all animate-in fade-in zoom-in">REVEAL THE STARS</button>
+                                )}
+                                {userData.birthDate && parseInt(userData.birthDate.split('-')[0]) <= 1900 && (
+                                    <p className="text-red-400 text-xs animate-pulse">Please enter a valid birth year (after 1900).</p>
                                 )}
                             </div>
                         </div>
@@ -174,6 +179,27 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         CONTINUE
                                     </button>
                                 )}
+                            </div>
+                        </div>
+                    )}
+
+                    {intakeSubStep === IntakeSubStep.EMAIL && (
+                        <div className="space-y-8 text-center">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100">"Where shall I send my written vision?"</h2>
+                            <div className="relative max-w-sm mx-auto">
+                                <input
+                                    autoFocus
+                                    type="email"
+                                    className="w-full bg-transparent border-b-2 border-indigo-900 focus:border-yellow-500 text-2xl md:text-2xl text-center py-4 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900"
+                                    placeholder="Your email address..."
+                                    value={userData.email}
+                                    onChange={e => setUserData({ ...userData, email: e.target.value })}
+                                    onKeyDown={e => e.key === 'Enter' && userData.email.includes('@') && nextIntakeStep()}
+                                />
+                                {userData.email && userData.email.includes('@') && (
+                                    <button onClick={nextIntakeStep} className="mt-12 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all animate-in fade-in zoom-in">REVEAL MY PATH</button>
+                                )}
+                                <p className="mt-4 text-[10px] text-indigo-400/60 uppercase tracking-widest">Strictly Confidential</p>
                             </div>
                         </div>
                     )}

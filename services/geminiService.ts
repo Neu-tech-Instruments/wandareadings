@@ -2,6 +2,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { UserData, ReadingResponse, Review } from "../types";
 
+const GENERATION_MODEL = 'gemini-1.5-flash';
+
 const getAI = () => {
   const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -42,7 +44,7 @@ export const getInitialReading = async (userData: UserData): Promise<ReadingResp
     if (!ai) throw new Error("AI not initialized");
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: GENERATION_MODEL,
       contents: `You are Wanda, a world-class spiritual intuitive and psychic. 
       The user is seeking a reading about: ${userData.readingType}. 
       User Name: ${userData.name}, Born: ${userData.birthDate}.
@@ -97,7 +99,7 @@ export const getFullReading = async (userData: UserData): Promise<FullReadingCon
     if (!ai) throw new Error("AI not initialized");
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: GENERATION_MODEL,
       contents: `You are Wanda, providing a deep, personalized psychic reading for:
       Seeker: ${userData.name} (Born: ${userData.birthDate})
       Reading Type: ${userData.readingType}
@@ -157,7 +159,7 @@ export const localizeExperience = async (
     if (!ai) throw new Error("AI not initialized");
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: GENERATION_MODEL,
       contents: `You are localizing a psychic service app into the primary language of: ${locationInfo}. 
       
       Tasks:

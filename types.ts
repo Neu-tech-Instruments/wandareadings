@@ -14,6 +14,7 @@ export enum IntakeSubStep {
   PARTNER_QUERY,
   PARTNER_DETAILS,
   SITUATION,
+  EMAIL,
   DELIVERY_INFO,
   SUCCESS = 'SUCCESS'
 }
@@ -24,6 +25,7 @@ export interface UserData {
   partnerName?: string;
   partnerBirthDate?: string;
   question: string;
+  email: string;
   readingType: string;
 }
 

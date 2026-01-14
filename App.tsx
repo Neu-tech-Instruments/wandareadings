@@ -4,6 +4,7 @@ import { AppStep, UserData, ReadingResponse, Review, IntakeSubStep } from './typ
 import { getInitialReading, localizeExperience, getFullReading, FullReadingContent } from './services/geminiService';
 import { REVIEWS } from './src/data/reviews';
 import { getDailyReviews } from './src/services/reviewRotator';
+import { supabase } from './src/services/supabaseClient';
 
 // Components
 import { LandingPage } from './components/LandingPage';
@@ -26,6 +27,7 @@ const App: React.FC = () => {
     partnerName: '',
     partnerBirthDate: '',
     question: '',
+    email: '',
     readingType: 'Love & Relationships'
   });
   const [reading, setReading] = useState<ReadingResponse | null>(null);
@@ -60,11 +62,26 @@ const App: React.FC = () => {
       const debugView = urlParams.get('view');
 
       if (paymentSuccess === 'true') {
-        const savedData = localStorage.getItem('wanda_intake_data');
-        if (savedData) {
-          const parsed = JSON.parse(savedData);
-          setUserData(parsed);
-          setStep(AppStep.PAYMENT_CONFIRMED);
+        const savedReadingId = localStorage.getItem('wanda_reading_id');
+        if (savedReadingId) {
+          // Fetch from Supabase
+          try {
+            const { data, error } = await supabase
+              .from('readings')
+              .select('user_data')
+              .eq('id', savedReadingId)
+              .single();
+
+            if (data && data.user_data) {
+              setUserData(data.user_data);
+              setStep(AppStep.PAYMENT_CONFIRMED);
+            } else if (error) {
+              console.error("Error fetching reading:", error);
+              // Fallback to local storage if DB fails? Or just stay on landing
+            }
+          } catch (err) {
+            console.error("Supabase error:", err);
+          }
         }
       } else if (debugView) {
         // Debugging / Direct Navigation Routes
@@ -100,6 +117,7 @@ const App: React.FC = () => {
             const partnerBirthDate = urlParams.get('partnerDob');
             const readingType = urlParams.get('type') || 'Love & Relationships';
             const question = urlParams.get('q') || '';
+            const email = urlParams.get('email') || '';
 
             if (name && birthDate) {
               const retrievedData: UserData = {
@@ -108,6 +126,7 @@ const App: React.FC = () => {
                 partnerName: partnerName || '',
                 partnerBirthDate: partnerBirthDate || '',
                 question,
+                email,
                 readingType
               };
               setUserData(retrievedData);
@@ -172,9 +191,72 @@ const App: React.FC = () => {
     setCurrentIntakeStep(IntakeSubStep.NAME);
   };
 
-  const handleIntakeComplete = () => {
-    localStorage.setItem('wanda_intake_data', JSON.stringify(userData));
+  // Progressive Saving Logic
+  const saveProgress = async (currentData: UserData) => {
+    try {
+      const savedReadingId = localStorage.getItem('wanda_reading_id');
+
+      if (savedReadingId) {
+        // Update existing row
+        const { error } = await supabase
+          .from('readings')
+          .update({ user_data: currentData })
+          .eq('id', savedReadingId);
+        if (error) console.error("Supabase Update Error:", error);
+      } else {
+        // Initial insert happens on first step change if we want, or we can wait.
+        // Actually, if we just update, we need an ID. 
+        // If we don't have an ID, we should insert.
+        // But what if user just typed one letter? We don't want to spam inserts.
+        // Let's only insert if we have real data (e.g. name).
+        if (currentData.name) {
+          const { data, error } = await supabase
+            .from('readings')
+            .insert([{ user_data: currentData, status: 'pending' }])
+            .select()
+            .single();
+
+          if (data) localStorage.setItem('wanda_reading_id', data.id);
+          if (error) console.error("Supabase Insert Error:", error);
+        }
+      }
+    } catch (err) {
+      console.error("Progressive Save Error:", err);
+    }
+  };
+
+  const handleStepChange = (newStep: IntakeSubStep) => {
+    setCurrentIntakeStep(newStep);
+    // Fire and forget save
+    saveProgress(userData);
+  };
+
+  const handleIntakeComplete = async () => {
     setStep(AppStep.PROCESSING);
+    setLoadingText("Saving your energy signature...");
+
+    try {
+      // Save to Supabase
+      const { data, error } = await supabase
+        .from('readings')
+        .insert([{ user_data: userData, status: 'pending' }])
+        .select()
+        .single();
+
+      if (data) {
+        localStorage.setItem('wanda_reading_id', data.id);
+      }
+
+      if (error) {
+        console.error("Supabase Save Error:", error);
+        // Fallback: still save to local storage just in case
+        localStorage.setItem('wanda_intake_data', JSON.stringify(userData));
+      }
+    } catch (err) {
+      console.error("Save Error:", err);
+      localStorage.setItem('wanda_intake_data', JSON.stringify(userData));
+    }
+
     setLoadingText("Redirecting to Secure Payment...");
     setTimeout(() => {
       window.location.href = STRIPE_CHECKOUT_LINK;
@@ -225,7 +307,7 @@ const App: React.FC = () => {
             intakeContent={intakeContent}
             reviews={reviews}
             isLoading={isLocalizing}
-            onStepChange={setCurrentIntakeStep}
+            onStepChange={handleStepChange}
             initialStep={currentIntakeStep}
           />
         )}
