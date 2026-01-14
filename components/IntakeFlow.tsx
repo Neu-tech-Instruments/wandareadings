@@ -31,6 +31,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     initialStep = IntakeSubStep.NAME
 }) => {
     const [intakeSubStep, setIntakeSubStep] = useState<IntakeSubStep>(initialStep);
+    const [showDateError, setShowDateError] = useState(false);
 
     const nextIntakeStep = () => {
         if (intakeSubStep === IntakeSubStep.DELIVERY_INFO) {
@@ -46,6 +47,18 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
         const prevStep = intakeSubStep - 1;
         setIntakeSubStep(prevStep);
         onStepChange?.(prevStep);
+    };
+
+    const handleDateSubmit = () => {
+        if (!userData.birthDate) return;
+        const year = parseInt(userData.birthDate.split('-')[0]);
+        const currentYear = new Date().getFullYear();
+        if (year > 1900 && year <= currentYear) {
+            setShowDateError(false);
+            nextIntakeStep();
+        } else {
+            setShowDateError(true);
+        }
     };
 
     return (
@@ -81,17 +94,20 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                 <input
                                     autoFocus
                                     type="date"
-                                    min="1920-01-01"
+                                    min="1900-01-01"
                                     max={new Date().toISOString().split('T')[0]}
                                     className="w-full max-w-xs bg-black/40 border border-indigo-900 rounded-2xl px-6 py-4 text-xl text-center outline-none text-indigo-100 focus:border-yellow-500 transition-all"
                                     value={userData.birthDate}
-                                    onChange={e => setUserData({ ...userData, birthDate: e.target.value })}
+                                    onChange={e => {
+                                        setUserData({ ...userData, birthDate: e.target.value });
+                                        setShowDateError(false);
+                                    }}
                                 />
-                                {userData.birthDate && parseInt(userData.birthDate.split('-')[0]) > 1900 && (
-                                    <button onClick={nextIntakeStep} className="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs transition-all animate-in fade-in zoom-in">REVEAL THE STARS</button>
+                                {userData.birthDate && (
+                                    <button onClick={handleDateSubmit} className="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs transition-all animate-in fade-in zoom-in">REVEAL THE STARS</button>
                                 )}
-                                {userData.birthDate && parseInt(userData.birthDate.split('-')[0]) <= 1900 && (
-                                    <p className="text-red-400 text-xs animate-pulse">Please enter a valid birth year (after 1900).</p>
+                                {showDateError && (
+                                    <p className="text-red-400 text-xs animate-pulse">Please enter a valid birth year.</p>
                                 )}
                             </div>
                         </div>

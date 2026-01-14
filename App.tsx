@@ -257,10 +257,29 @@ const App: React.FC = () => {
       localStorage.setItem('wanda_intake_data', JSON.stringify(userData));
     }
 
-    setLoadingText("Redirecting to Secure Payment...");
-    setTimeout(() => {
-      window.location.href = STRIPE_CHECKOUT_LINK;
-    }, 1200);
+    setLoadingText("Connecting to the cosmos...");
+
+    // OWNER BYPASS: If email contains 'test', skip payment and show reading
+    if (userData.email.toLowerCase().includes('test')) {
+      try {
+        const [teaserResult, fullResult] = await Promise.all([
+          getInitialReading(userData),
+          getFullReading(userData)
+        ]);
+        setReading(teaserResult);
+        setFullReading(fullResult);
+        // Stay on PROCESSING step, which renders the result if 'reading' exists
+      } catch (err) {
+        console.error("Failed to generate reading:", err);
+        setLoadingText("The stars are clouded. Please try again.");
+      }
+    } else {
+      // REGULAR USER: Redirect to Payment
+      setLoadingText("Redirecting to Secure Payment...");
+      setTimeout(() => {
+        window.location.href = STRIPE_CHECKOUT_LINK;
+      }, 1200);
+    }
   };
 
   const progressPercentage = ((currentIntakeStep + 1) / 7) * 100;

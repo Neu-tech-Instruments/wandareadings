@@ -30,7 +30,7 @@ export interface UserData {
 }
 
 export interface Review {
-  id: number;
+  id: number | string;
   user: string;
   rating: number;
   date: string;
