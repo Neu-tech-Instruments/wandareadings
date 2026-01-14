@@ -293,28 +293,13 @@ const App: React.FC = () => {
     audio.volume = 0.2;
     audioRef.current = audio;
 
-    const playAudio = async () => {
-      try {
-        await audio.play();
-        setIsMuted(false);
-      } catch (err) {
-        console.log("Autoplay prevented by browser. Waiting for interaction.");
-        setIsMuted(true); // Visually show it's off for now
-      }
-    };
-
-    playAudio();
-
-    // Unlock audio on first interaction if blocked
+    // Unlock audio on first global interaction
+    // We only actually PLAY if the step logic allows it, but we need to unlock the audio context.
     const enableAudio = () => {
-      if (audio.paused) {
-        audio.play()
-          .then(() => {
-            setIsMuted(false);
-          })
-          .catch(e => console.error("Still blocked:", e));
-      }
-      // Remove listeners once tried
+      // Just by interacting, the browser often unlocks the context for this specific audio element if we touch it.
+      // But we will let the step-based effect handle the .play() call.
+      // We just remove listeners here.
+
       document.removeEventListener('click', enableAudio);
       document.removeEventListener('touchstart', enableAudio);
       document.removeEventListener('keydown', enableAudio);
@@ -332,6 +317,30 @@ const App: React.FC = () => {
       document.removeEventListener('keydown', enableAudio);
     };
   }, []);
+
+  // Control Playback based on Step & Mute State
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    if (step === AppStep.LANDING) {
+      audioRef.current.pause();
+    } else {
+      // If we are NOT on landing, follow isMuted state
+      if (!isMuted) {
+        // Try to play. If browser blocks it (no interaction yet), it will catch.
+        audioRef.current.play().catch(e => {
+          // Expected if user hasn't interacted yet.
+          // The enableAudio listener above handles the "first click" unlock implicitly 
+          // because once they click, we can play. 
+          // Actually, if this fails, we might want to try again on interaction.
+          // But let's assume the user clicked "Start" to get here, so interaction IS guaranteed.
+          console.log("Playback prevented:", e);
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [step, isMuted]);
 
   const toggleAudio = () => {
     if (!audioRef.current) return;
