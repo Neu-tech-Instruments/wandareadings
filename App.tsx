@@ -282,16 +282,90 @@ const App: React.FC = () => {
     }
   };
 
+  // Global Audio Logic
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Initialize Audio
+    const audio = new Audio('/audio/ethereal_ambience.mp3');
+    audio.loop = true;
+    audio.volume = 0.2;
+    audioRef.current = audio;
+
+    const playAudio = async () => {
+      try {
+        await audio.play();
+        setIsMuted(false);
+      } catch (err) {
+        console.log("Autoplay prevented by browser. Waiting for interaction.");
+        setIsMuted(true); // Visually show it's off for now
+      }
+    };
+
+    playAudio();
+
+    // Unlock audio on first interaction if blocked
+    const enableAudio = () => {
+      if (audio.paused) {
+        audio.play()
+          .then(() => {
+            setIsMuted(false);
+          })
+          .catch(e => console.error("Still blocked:", e));
+      }
+      // Remove listeners once tried
+      document.removeEventListener('click', enableAudio);
+      document.removeEventListener('touchstart', enableAudio);
+      document.removeEventListener('keydown', enableAudio);
+    };
+
+    document.addEventListener('click', enableAudio);
+    document.addEventListener('touchstart', enableAudio);
+    document.addEventListener('keydown', enableAudio);
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+      document.removeEventListener('click', enableAudio);
+      document.removeEventListener('touchstart', enableAudio);
+      document.removeEventListener('keydown', enableAudio);
+    };
+  }, []);
+
+  const toggleAudio = () => {
+    if (!audioRef.current) return;
+    if (isMuted) {
+      audioRef.current.play().catch(e => console.error(e));
+      setIsMuted(false);
+    } else {
+      audioRef.current.pause();
+      setIsMuted(true);
+    }
+  };
+
   const progressPercentage = ((currentIntakeStep + 1) / 7) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-indigo-500/30">
+    <div className="min-h-screen flex flex-col selection:bg-indigo-500/30 relative">
       <nav className="border-b border-indigo-900/50 bg-black/60 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <h1 className="text-lg md:text-xl font-serif-mystic text-indigo-100 tracking-widest flex items-center gap-2 cursor-pointer" onClick={() => window.location.href = window.location.pathname}>
             <i className="fas fa-moon text-yellow-500"></i> WANDA
           </h1>
           <div className="flex items-center gap-4">
+
+            {/* Global Mute Toggle - Hidden on Landing Page */}
+            {step !== AppStep.LANDING && (
+              <button
+                onClick={toggleAudio}
+                className="w-8 h-8 rounded-full bg-indigo-900/40 border border-yellow-500/30 text-yellow-500 flex items-center justify-center hover:bg-indigo-900/60 transition-all text-xs mr-2"
+                title={isMuted ? "Unmute Ambient Sound" : "Mute Ambient Sound"}
+              >
+                <i className={`fas ${isMuted ? 'fa-volume-mute' : 'fa-volume-up'}`}></i>
+              </button>
+            )}
+
             {step === AppStep.INTAKE && (
               <div className="hidden xs:flex items-center gap-2 mr-2">
                 <div className="w-20 h-1 bg-indigo-900 rounded-full overflow-hidden">
