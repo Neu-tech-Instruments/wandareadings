@@ -61,6 +61,15 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
         }
     };
 
+    const renderInlineBack = () => (
+        <button
+            onClick={intakeSubStep === IntakeSubStep.NAME ? onBack : handleBack}
+            className="mt-8 text-[10px] text-indigo-500 hover:text-indigo-300 uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto opacity-70 hover:opacity-100 w-full"
+        >
+            <i className="fas fa-arrow-left"></i> {intakeSubStep === IntakeSubStep.NAME ? "Restart Journey" : "Retrace Steps"}
+        </button>
+    );
+
     return (
         <div className="flex-grow flex items-center justify-center py-12 px-6 w-full">
             <div className="max-w-xl w-full">
@@ -84,6 +93,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     <button onClick={nextIntakeStep} className="mt-12 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all animate-in fade-in zoom-in">CONTINUE</button>
                                 )}
                             </div>
+                            {renderInlineBack()}
                         </div>
                     )}
 
@@ -110,6 +120,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     <p className="text-red-400 text-xs animate-pulse">Please enter a valid birth year.</p>
                                 )}
                             </div>
+                            {renderInlineBack()}
                         </div>
                     )}
 
@@ -129,6 +140,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     </button>
                                 ))}
                             </div>
+                            {renderInlineBack()}
                         </div>
                     )}
 
@@ -147,6 +159,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     NO, JUST MY JOURNEY
                                 </button>
                             </div>
+                            {renderInlineBack()}
                         </div>
                     )}
 
@@ -172,6 +185,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     <button onClick={nextIntakeStep} className="mt-4 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs transition-all animate-in fade-in zoom-in">CONNECT ENERGIES</button>
                                 )}
                             </div>
+                            {renderInlineBack()}
                         </div>
                     )}
 
@@ -196,6 +210,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     </button>
                                 )}
                             </div>
+                            {renderInlineBack()}
                         </div>
                     )}
 
@@ -217,6 +232,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                 )}
                                 <p className="mt-4 text-[10px] text-indigo-400/60 uppercase tracking-widest">Strictly Confidential</p>
                             </div>
+                            {renderInlineBack()}
                         </div>
                     )}
 
@@ -266,26 +282,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                     )}
 
                 </div>
-
-                {/* Back Button */}
-                {intakeSubStep !== IntakeSubStep.NAME && intakeSubStep !== IntakeSubStep.DELIVERY_INFO && (
-                    <button
-                        onClick={handleBack}
-                        className="fixed bottom-10 left-10 text-[10px] uppercase tracking-[0.3em] text-indigo-600 hover:text-indigo-400 transition-colors hidden md:block"
-                    >
-                        <i className="fas fa-arrow-left mr-2"></i> Return
-                    </button>
-                )}
-
-                {intakeSubStep === IntakeSubStep.NAME && (
-                    <button
-                        onClick={onBack}
-                        className="fixed bottom-10 left-10 text-[10px] uppercase tracking-[0.3em] text-indigo-600 hover:text-indigo-400 transition-colors hidden md:block"
-                    >
-                        <i className="fas fa-arrow-left mr-2"></i> Home
-                    </button>
-                )}
             </div>
-        </div>
+        </div >
     );
 };
