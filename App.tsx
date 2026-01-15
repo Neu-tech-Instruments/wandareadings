@@ -33,8 +33,22 @@ const App: React.FC = () => {
   const [reading, setReading] = useState<ReadingResponse | null>(null);
   const [fullReading, setFullReading] = useState<FullReadingContent | null>(null);
   const [loadingText, setLoadingText] = useState('Connecting to the cosmos...');
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const [reviews, setReviews] = useState<Review[]>([]);
+  // ... (keep middle content)
+
+  // ... (keep useEffects)
+
+  const handleStart = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setStep(AppStep.INTAKE);
+      setCurrentIntakeStep(IntakeSubStep.NAME);
+      setIsTransitioning(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 800);
+  };
   const [heroContent, setHeroContent] = useState({
     title: "Discover Your Destiny in Love",
     subtitle: "Receive a deep-dive psychic reading from Wanda, an expert in twin flames, soul connections, and spiritual clarity.",
@@ -186,10 +200,7 @@ const App: React.FC = () => {
     handleInit();
   }, []);
 
-  const handleStart = () => {
-    setStep(AppStep.INTAKE);
-    setCurrentIntakeStep(IntakeSubStep.NAME);
-  };
+
 
   // Progressive Saving Logic
   const saveProgress = async (currentData: UserData) => {
@@ -397,6 +408,7 @@ const App: React.FC = () => {
             reviews={reviews}
             isLoading={isLocalizing}
             onStart={handleStart}
+            isExiting={isTransitioning}
           />
         )}
 

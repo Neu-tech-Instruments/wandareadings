@@ -32,21 +32,37 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 }) => {
     const [intakeSubStep, setIntakeSubStep] = useState<IntakeSubStep>(initialStep);
     const [showDateError, setShowDateError] = useState(false);
+    const [isExiting, setIsExiting] = useState(false);
+
+    const handleTransition = (callback: () => void) => {
+        setIsExiting(true);
+        setTimeout(() => {
+            callback();
+            setIsExiting(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 1200); // Even slower wait time
+    };
 
     const nextIntakeStep = () => {
         if (intakeSubStep === IntakeSubStep.DELIVERY_INFO) {
             onComplete();
         } else {
-            const nextStep = intakeSubStep + 1;
-            setIntakeSubStep(nextStep);
-            onStepChange?.(nextStep);
+            handleTransition(() => {
+                const nextStep = intakeSubStep + 1;
+                setIntakeSubStep(nextStep);
+                onStepChange?.(nextStep);
+            });
         }
     };
 
+    // ... (keep other handlers same)
+
     const handleBack = () => {
-        const prevStep = intakeSubStep - 1;
-        setIntakeSubStep(prevStep);
-        onStepChange?.(prevStep);
+        handleTransition(() => {
+            const prevStep = intakeSubStep - 1;
+            setIntakeSubStep(prevStep);
+            onStepChange?.(prevStep);
+        });
     };
 
     const handleDateSubmit = () => {
@@ -64,7 +80,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     const renderInlineBack = () => (
         <button
             onClick={intakeSubStep === IntakeSubStep.NAME ? onBack : handleBack}
-            className="mt-8 text-[10px] text-indigo-500 hover:text-indigo-300 uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto opacity-70 hover:opacity-100 w-full"
+            className="mt-8 text-[10px] text-indigo-500 hover:text-indigo-300 uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 mx-auto opacity-70 hover:opacity-100 w-full animate-in fade-in duration-1000 delay-1000 fill-mode-forwards"
         >
             <i className="fas fa-arrow-left"></i> {intakeSubStep === IntakeSubStep.NAME ? "Restart Journey" : "Retrace Steps"}
         </button>
@@ -74,12 +90,18 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
         <div className="flex-grow flex items-center justify-center py-12 px-6 w-full">
             <div className="max-w-xl w-full">
                 {/* Question container */}
-                <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 w-full">
+                <div
+                    key={intakeSubStep}
+                    className={`w-full ease-in-out ${isExiting
+                        ? 'opacity-0 blur-xl scale-90 transition-all duration-1000'
+                        : 'animate-ethereal-fade-in'
+                        }`}
+                >
 
                     {intakeSubStep === IntakeSubStep.NAME && (
                         <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100">"First, let me feel your presence. What is your full name?"</h2>
-                            <div className="relative">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"First, let me feel your presence. What is your full name?"</h2>
+                            <div className="relative animate-ethereal-slide-up delay-1000">
                                 <input
                                     autoFocus
                                     type="text"
@@ -99,8 +121,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {intakeSubStep === IntakeSubStep.BIRTHDATE && (
                         <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100">"A powerful name. And when did your soul first enter this world?"</h2>
-                            <div className="flex flex-col items-center gap-8">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"A powerful name. And when did your soul first enter this world?"</h2>
+                            <div className="flex flex-col items-center gap-8 animate-ethereal-slide-up delay-1000">
                                 <input
                                     autoFocus
                                     type="date"
@@ -126,12 +148,19 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {intakeSubStep === IntakeSubStep.PATH && (
                         <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100">"Which path of destiny are we exploring today?"</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Which path of destiny are we exploring today?"</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
                                 {['Love & Relationships', 'Twin Flame Bond', 'Soulmate Discovery', 'Breakup Recovery'].map(path => (
                                     <button
                                         key={path}
-                                        onClick={() => { setUserData({ ...userData, readingType: path }); nextIntakeStep(); }}
+                                        onClick={() => {
+                                            handleTransition(() => {
+                                                setUserData({ ...userData, readingType: path });
+                                                const nextStep = intakeSubStep + 1;
+                                                setIntakeSubStep(nextStep);
+                                                onStepChange?.(nextStep);
+                                            });
+                                        }}
                                         className={`p-6 rounded-2xl border transition-all text-sm font-bold tracking-widest uppercase
                       ${userData.readingType === path ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
                     `}
@@ -146,13 +175,15 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {intakeSubStep === IntakeSubStep.PARTNER_QUERY && (
                         <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100">"Is there another soul whose energy is intertwined with yours?"</h2>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Is there another soul whose energy is intertwined with yours?"</h2>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-ethereal-slide-up delay-1000">
                                 <button onClick={nextIntakeStep} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-indigo-500">YES, A PARTNER</button>
                                 <button
                                     onClick={() => {
-                                        setIntakeSubStep(IntakeSubStep.SITUATION);
-                                        onStepChange?.(IntakeSubStep.SITUATION);
+                                        handleTransition(() => {
+                                            setIntakeSubStep(IntakeSubStep.SITUATION);
+                                            onStepChange?.(IntakeSubStep.SITUATION);
+                                        });
                                     }}
                                     className="border border-indigo-700 text-indigo-300 px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-indigo-900/40"
                                 >
@@ -165,8 +196,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {intakeSubStep === IntakeSubStep.PARTNER_DETAILS && (
                         <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100">"Tell me of them. Their name and their arrival."</h2>
-                            <div className="space-y-4 max-w-sm mx-auto">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Tell me of them. Their name and their arrival."</h2>
+                            <div className="space-y-4 max-w-sm mx-auto animate-ethereal-slide-up delay-1000">
                                 <input
                                     autoFocus
                                     type="text"
@@ -191,8 +222,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {intakeSubStep === IntakeSubStep.SITUATION && (
                         <div className="space-y-8 text-center max-w-xl mx-auto">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100">"Finally, tell me... what keeps your heart heavy today?"</h2>
-                            <div className="space-y-6">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Finally, tell me... what keeps your heart heavy today?"</h2>
+                            <div className="space-y-6 animate-ethereal-slide-up delay-1000">
                                 <textarea
                                     autoFocus
                                     rows={5}
@@ -216,8 +247,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {intakeSubStep === IntakeSubStep.EMAIL && (
                         <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100">"Where shall I send my written vision?"</h2>
-                            <div className="relative max-w-sm mx-auto">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Where shall I send my written vision?"</h2>
+                            <div className="relative max-w-sm mx-auto animate-ethereal-slide-up delay-1000">
                                 <input
                                     autoFocus
                                     type="email"

@@ -1,0 +1,71 @@
+/* Ethereal Motion System */
+
+:root {
+    --ease-ethereal: cubic-bezier(0.22, 1, 0.36, 1);
+    /* Quartic Out - Premium Feel */
+    --duration-base: 1500ms;
+    --duration-slow: 2000ms;
+}
+
+@keyframes etherealFadeIn {
+    0% {
+        opacity: 0;
+        filter: blur(10px);
+        transform: scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        filter: blur(0);
+        transform: scale(1);
+    }
+}
+
+@keyframes etherealSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(5px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* Utility Classes */
+
+.animate-ethereal-fade-in {
+    animation: etherealFadeIn var(--duration-base) var(--ease-ethereal) forwards;
+    opacity: 0;
+    /* Initial state */
+}
+
+.animate-ethereal-slide-up {
+    animation: etherealSlideUp var(--duration-slow) var(--ease-ethereal) forwards;
+    opacity: 0;
+    /* Initial state */
+}
+
+/* Delays */
+.delay-200 {
+    animation-delay: 200ms;
+}
+
+.delay-500 {
+    animation-delay: 500ms;
+}
+
+.delay-1000 {
+    animation-delay: 1000ms;
+}
+
+.delay-1500 {
+    animation-delay: 1500ms;
+}
+
+.delay-2000 {
+    animation-delay: 2000ms;
+}

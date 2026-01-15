@@ -11,12 +11,12 @@ interface LandingPageProps {
     };
     reviews: Review[];
     isLoading: boolean;
-    onStart: () => void;
+    isExiting?: boolean;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ heroContent, reviews, isLoading, onStart }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ heroContent, reviews, isLoading, onStart, isExiting }) => {
     return (
-        <div className="animate-in fade-in duration-700">
+        <div className={`w-full transition-all duration-800 ease-in-out ${isExiting ? 'opacity-0 blur-xl scale-95' : 'animate-in fade-in duration-700 opacity-100 blur-0 scale-100'}`}>
             <section className="relative min-h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden py-12 md:py-0">
                 <VideoBackground />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30 z-[1]"></div>

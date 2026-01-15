@@ -207,7 +207,7 @@ export const ReviewSection: React.FC<ReviewSectionProps & { compact?: boolean; e
 
               <div className="flex items-center gap-4">
                 <div onClick={() => fileInputRef.current?.click()} className="cursor-pointer flex items-center gap-2 text-indigo-300 text-xs uppercase tracking-widest hover:text-yellow-500 transition-colors">
-                  <i className="fas fa-camera"></i> Upload Photo
+                  <i className="fas fa-camera"></i> Upload Profile Photo
                 </div>
                 <input
                   type="file"
