@@ -216,8 +216,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                         <div className="space-y-8 text-center w-full">
                             {userData.readingCategory === 'CardPile' ? (
                                 // New "Pick a Card" Immersive UI
-                                <div className="animate-ethereal-fade-in w-full max-w-4xl mx-auto">
-                                    <div className="mb-10 space-y-4">
+                                <div className="animate-ethereal-fade-in w-full max-w-4xl mx-auto relative pb-10">
+                                    <div className="mb-8 space-y-4">
                                         <h2 className="text-2xl md:text-5xl font-serif-mystic text-yellow-500 tracking-wider drop-shadow-lg">
                                             "The Universe speaks in symbols."
                                         </h2>
@@ -230,7 +230,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     <div
                                         ref={pilesScrollRef}
                                         onScroll={handleScroll}
-                                        className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-4 md:gap-6 mb-8 md:mb-12 pb-4 px-[7.5vw] md:px-0 -mx-6 md:mx-0 w-[calc(100%+3rem)] md:w-full [&::-webkit-scrollbar]:hidden"
+                                        className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-4 md:gap-6 pb-4 px-[7.5vw] md:px-0 -mx-6 md:mx-0 w-[calc(100%+3rem)] md:w-full [&::-webkit-scrollbar]:hidden"
                                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                                     >
                                         {[
@@ -240,7 +240,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         ].map((pile, idx) => (
                                             <div
                                                 key={pile.id}
-                                                className="group flex flex-col items-center gap-4 cursor-pointer min-w-[85vw] md:min-w-0 md:w-auto snap-center"
+                                                className="group flex flex-col items-center gap-6 md:gap-4 cursor-pointer min-w-[85vw] md:min-w-0 md:w-auto snap-center"
                                                 onTouchStart={(e) => {
                                                     dragStartRef.current = e.touches[0].clientX;
                                                     isDraggingRef.current = false;
@@ -281,8 +281,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         ))}
                                     </div>
 
-                                    {/* Mobile Indicators */}
-                                    <div className="flex md:hidden justify-center gap-3 mb-8 -mt-4">
+                                    {/* Mobile Indicators - Positioned between image and button */}
+                                    <div className="absolute bottom-[6rem] left-0 right-0 flex md:hidden justify-center gap-3 z-10 pointer-events-none">
                                         {[0, 1, 2].map(i => (
                                             <div
                                                 key={i}
@@ -290,22 +290,6 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                             />
                                         ))}
                                     </div>
-
-                                    {/* Safety Valve */}
-                                    <button
-                                        onClick={() => {
-                                            handleTransition(() => {
-                                                setUserData({ ...userData, readingType: 'Specific Question' });
-                                                // Skip selection, go to Situation
-                                                const nextStep = IntakeSubStep.SITUATION;
-                                                setIntakeSubStep(nextStep);
-                                                onStepChange?.(nextStep);
-                                            });
-                                        }}
-                                        className="text-xs md:text-sm text-indigo-400/60 hover:text-indigo-200 border-b border-transparent hover:border-indigo-400/50 pb-0.5 transition-all text-center"
-                                    >
-                                        I have a specific question (Skip this step)
-                                    </button>
                                 </div>
                             ) : (
                                 // Generic UI for Other Categories
