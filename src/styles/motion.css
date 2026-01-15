@@ -3,8 +3,8 @@
 :root {
     --ease-ethereal: cubic-bezier(0.22, 1, 0.36, 1);
     /* Quartic Out - Premium Feel */
-    --duration-base: 1500ms;
-    --duration-slow: 2000ms;
+    --duration-base: 1000ms;
+    --duration-slow: 1200ms;
 }
 
 @keyframes etherealFadeIn {
