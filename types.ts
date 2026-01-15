@@ -10,7 +10,8 @@ export enum AppStep {
 export enum IntakeSubStep {
   NAME,
   BIRTHDATE,
-  PATH,
+  CATEGORY,
+  SUB_PATH,
   PARTNER_QUERY,
   PARTNER_DETAILS,
   SITUATION,
@@ -27,6 +28,9 @@ export interface UserData {
   question: string;
   email: string;
   readingType: string;
+  readingCategory?: 'Love' | 'Career' | 'General' | 'CardPile';
+  careerStatus?: string;
+  cardPile?: string;
 }
 
 export interface Review {

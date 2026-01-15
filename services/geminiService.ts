@@ -36,9 +36,18 @@ export interface FullReadingContent {
 
 export const getInitialReading = async (userData: UserData): Promise<ReadingResponse> => {
   try {
-    const partnerContext = userData.partnerName
-      ? `They are also asking about their connection with ${userData.partnerName} (Born: ${userData.partnerBirthDate}).`
-      : "";
+    let focusContext = "";
+    if (userData.readingCategory === 'Love') {
+      focusContext = userData.partnerName
+        ? `They are asking about their connection with ${userData.partnerName} (Born: ${userData.partnerBirthDate}). Situation: ${userData.readingType}.`
+        : `They are asking about Love: ${userData.readingType}.`;
+    } else if (userData.readingCategory === 'Career') {
+      focusContext = `They are asking about Career & Wealth. Professional Status: ${userData.careerStatus}.`;
+    } else if (userData.readingCategory === 'CardPile') {
+      focusContext = `They selected Card Pile: ${userData.cardPile}. Interpret the energy of this specific pile for them.`;
+    } else {
+      focusContext = `They are asking about Life Purpose & Spirituality. Focus: ${userData.readingType}.`;
+    }
 
     const ai = getAI();
     if (!ai) throw new Error("AI not initialized");
@@ -46,13 +55,13 @@ export const getInitialReading = async (userData: UserData): Promise<ReadingResp
     const response = await ai.models.generateContent({
       model: GENERATION_MODEL,
       contents: `You are Wanda, a world-class spiritual intuitive and psychic. 
-      The user is seeking a reading about: ${userData.readingType}. 
+      The user is seeking a reading about: ${userData.readingCategory} - ${userData.readingType}. 
       User Name: ${userData.name}, Born: ${userData.birthDate}.
-      ${partnerContext}
+      ${focusContext}
       User Question: "${userData.question}"
       
       Instructions:
-      1. Analyze the spiritual vibration of their question and connection.
+      1. Analyze the spiritual vibration of their question and connection/situation.
       2. Provide a mysterious yet comforting 2-sentence "initial vision" or "teaser".
       3. Provide a 1-sentence description of their "Energy Signature" based on the names/energies provided.
       4. DO NOT give the full answer. Be slightly cryptic to encourage them to proceed to the full reading.`,
@@ -88,12 +97,24 @@ export const getInitialReading = async (userData: UserData): Promise<ReadingResp
 
 export const getFullReading = async (userData: UserData): Promise<FullReadingContent> => {
   try {
-    const partnerContext = userData.partnerName
-      ? `Their partner: ${userData.partnerName} (Born: ${userData.partnerBirthDate}).`
-      : "No specific partner mentioned.";
+    let contextSpecifics = "";
+    let p1Instruction = "";
 
-    // Fallback if no question provided (e.g. magic link with minimal params)
-    const questionContext = userData.question ? `Question: "${userData.question}"` : "General love and destiny inquiry.";
+    if (userData.readingCategory === 'Love') {
+      contextSpecifics = userData.partnerName
+        ? `Partner: ${userData.partnerName} (Born: ${userData.partnerBirthDate}).`
+        : "Focus: General Love / Future Partner.";
+      p1Instruction = `Paragraph 1 (The Connection): Tune into the energy of ${userData.name} ${userData.partnerName ? `and ${userData.partnerName}` : ""} right now. Describe the vibration, the emotional landscape, and what you feel in their aura regarding love.`;
+    } else if (userData.readingCategory === 'Career') {
+      contextSpecifics = `Career Status: ${userData.careerStatus}.`;
+      p1Instruction = `Paragraph 1 (The Professional Aura): Tune into ${userData.name}'s professional energy field. Describe the blocks or flows of abundance you sense around them.`;
+    } else if (userData.readingCategory === 'CardPile') {
+      contextSpecifics = `Selected Pile: ${userData.cardPile}.`;
+      p1Instruction = `Paragraph 1 (The Cards): Tune into the specific energy of ${userData.cardPile} that called to ${userData.name}. Describe the imagery and immediate feeling of this pile.`;
+    } else {
+      contextSpecifics = "Focus: Life Purpose / Spiritual Path.";
+      p1Instruction = `Paragraph 1 (The Soul Path): Tune into ${userData.name}'s higher self and spiritual aura. Describe the current phase of their soul's journey and the vibration they are emitting.`;
+    }
 
     const ai = getAI();
     if (!ai) throw new Error("AI not initialized");
@@ -102,26 +123,27 @@ export const getFullReading = async (userData: UserData): Promise<FullReadingCon
       model: GENERATION_MODEL,
       contents: `You are Wanda, providing a deep, personalized psychic reading for:
       Seeker: ${userData.name} (Born: ${userData.birthDate})
-      Reading Type: ${userData.readingType}
-      ${questionContext}
-      ${partnerContext}
+      Reading Category: ${userData.readingCategory}
+      Specific Focus: ${userData.readingType}
+      ${contextSpecifics}
+      Question: "${userData.question}"
 
       Instructions:
       Write EXACTLY 3 distinct paragraphs (NO titles, just the text):
       
-      Paragraph 1 (The Connection): Tune into the energy of ${userData.name} ${userData.partnerName ? `and ${userData.partnerName}` : ""} right now. Describe the vibration, the emotional landscape, and what you feel in their aura. Be specific and mystical.
+      ${p1Instruction}
       
       Paragraph 2 (The Truth): Directly answer their question: "${userData.question}". Don't be vague. Tell them what you see in the cards/stars about this specific situation. Use their name.
       
-      Paragraph 3 (The Path): Provide clear, actionable spiritual guidance for the future. What is coming next? What should they different? End with a powerful blessing.`,
+      Paragraph 3 (The Path): Provide clear, actionable spiritual guidance for the future. What is coming next? What should they do differently? End with a powerful blessing.`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            paragraph1: { type: Type.STRING, description: "Energy analysis and connection insight." },
-            paragraph2: { type: Type.STRING, description: "Direct answer to the user's question." },
-            paragraph3: { type: Type.STRING, description: "Future path, guidance, and blessing." }
+            paragraph1: { type: Type.STRING, description: "Energy analysis." },
+            paragraph2: { type: Type.STRING, description: "Direct answer." },
+            paragraph3: { type: Type.STRING, description: "Future path and blessing." }
           },
           required: ["paragraph1", "paragraph2", "paragraph3"]
         },
@@ -132,8 +154,8 @@ export const getFullReading = async (userData: UserData): Promise<FullReadingCon
   } catch (error) {
     console.error("Full Reading Error:", error);
     return {
-      paragraph1: `I am sensing a powerful shift in your energy field, ${userData.name}. The cards indicate a period of transformation where old patterns are falling away to make room for a new, vibrational match in love.`,
-      paragraph2: " regarding your question, I see that patience is your greatest ally right now. The universe is rearranging circumstances behind the scenes to alignment with your true desires.",
+      paragraph1: `I am sensing a powerful shift in your energy field, ${userData.name}. The cards indicate a period of transformation where old patterns are falling away to make room for a new, vibrational match.`,
+      paragraph2: "Regarding your question, I see that patience is your greatest ally right now. The universe is rearranging circumstances behind the scenes to alignment with your true desires.",
       paragraph3: "Moving forward, focus on self-love and setting clear boundaries. A significant sign will appear within the next lunar cycle confirming you are on the right path. Blessings to you."
     };
   }

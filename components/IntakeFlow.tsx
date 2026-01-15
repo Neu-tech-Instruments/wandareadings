@@ -48,7 +48,19 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
             onComplete();
         } else {
             handleTransition(() => {
-                const nextStep = intakeSubStep + 1;
+                let nextStep = intakeSubStep + 1;
+
+                // Branching Logic
+                if (intakeSubStep === IntakeSubStep.SUB_PATH) {
+                    // After Sub-Path, decide where to go
+                    if (userData.readingCategory === 'Love') {
+                        nextStep = IntakeSubStep.PARTNER_QUERY;
+                    } else {
+                        // Skip Partner logic for Career, General, Card Pile
+                        nextStep = IntakeSubStep.SITUATION;
+                    }
+                }
+
                 setIntakeSubStep(nextStep);
                 onStepChange?.(nextStep);
             });
@@ -59,7 +71,16 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
     const handleBack = () => {
         handleTransition(() => {
-            const prevStep = intakeSubStep - 1;
+            let prevStep = intakeSubStep - 1;
+
+            // Branching Back Logic
+            if (intakeSubStep === IntakeSubStep.SITUATION) {
+                if (userData.readingCategory !== 'Love') {
+                    // If not Love, we skipped Partner steps, so go back to SUB_PATH
+                    prevStep = IntakeSubStep.SUB_PATH;
+                }
+            }
+
             setIntakeSubStep(prevStep);
             onStepChange?.(prevStep);
         });
@@ -146,28 +167,84 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                         </div>
                     )}
 
-                    {intakeSubStep === IntakeSubStep.PATH && (
+                    {intakeSubStep === IntakeSubStep.CATEGORY && (
                         <div className="space-y-8 text-center">
                             <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Which path of destiny are we exploring today?"</h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
-                                {['Love & Relationships', 'Twin Flame Bond', 'Soulmate Discovery', 'Breakup Recovery'].map(path => (
+                                {[
+                                    { label: 'LOVE & RELATIONSHIPS', value: 'Love' },
+                                    { label: 'CAREER & WEALTH', value: 'Career' },
+                                    { label: 'LIFE PURPOSE & SPIRITUALITY', value: 'General' },
+                                    { label: 'I PICKED A CARD PILE', value: 'CardPile' }
+                                ].map(option => (
                                     <button
-                                        key={path}
+                                        key={option.value}
                                         onClick={() => {
                                             handleTransition(() => {
-                                                setUserData({ ...userData, readingType: path });
-                                                const nextStep = intakeSubStep + 1;
+                                                setUserData({ ...userData, readingCategory: option.value as any });
+                                                const nextStep = IntakeSubStep.SUB_PATH;
                                                 setIntakeSubStep(nextStep);
                                                 onStepChange?.(nextStep);
                                             });
                                         }}
                                         className={`p-6 rounded-2xl border transition-all text-sm font-bold tracking-widest uppercase
-                      ${userData.readingType === path ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
+                      ${userData.readingCategory === option.value ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
                     `}
                                     >
-                                        {path}
+                                        {option.label}
                                     </button>
                                 ))}
+                            </div>
+                            {renderInlineBack()}
+                        </div>
+                    )}
+
+                    {intakeSubStep === IntakeSubStep.SUB_PATH && (
+                        <div className="space-y-8 text-center">
+                            <h2 className="text-2xl md:text-3xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">
+                                {userData.readingCategory === 'Love' && "What is your specific situation?"}
+                                {userData.readingCategory === 'Career' && "What is your current professional status?"}
+                                {userData.readingCategory === 'General' && "What is calling to your soul?"}
+                                {userData.readingCategory === 'CardPile' && "Which pile called to you?"}
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
+                                {(() => {
+                                    let options: string[] = [];
+                                    if (userData.readingCategory === 'Love') options = ['Twin Flame Bond', 'Soulmate Discovery', 'Breakup Recovery', 'Seeking Love'];
+                                    if (userData.readingCategory === 'Career') options = ['Employed', 'Looking for Work', 'Entrepreneur', 'Feeling Stuck'];
+                                    if (userData.readingCategory === 'General') options = ['Feeling Lost', 'Seeking Purpose', 'Spiritual Awakening', 'What\'s Next?'];
+                                    if (userData.readingCategory === 'CardPile') options = ['Pile 1', 'Pile 2', 'Pile 3'];
+
+                                    return options.map(opt => (
+                                        <button
+                                            key={opt}
+                                            onClick={() => {
+                                                handleTransition(() => {
+                                                    // Set specific fields based on category
+                                                    const updates: Partial<UserData> = { readingType: opt };
+                                                    if (userData.readingCategory === 'Career') updates.careerStatus = opt;
+                                                    if (userData.readingCategory === 'CardPile') updates.cardPile = opt;
+
+                                                    setUserData({ ...userData, ...updates });
+
+                                                    // Branching forward logic
+                                                    let nextStep = IntakeSubStep.SITUATION;
+                                                    if (userData.readingCategory === 'Love') {
+                                                        nextStep = IntakeSubStep.PARTNER_QUERY;
+                                                    }
+
+                                                    setIntakeSubStep(nextStep);
+                                                    onStepChange?.(nextStep);
+                                                });
+                                            }}
+                                            className={`p-5 rounded-xl border transition-all text-xs md:text-sm font-bold tracking-wider uppercase
+                                            ${userData.readingType === opt ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
+                                            `}
+                                        >
+                                            {opt}
+                                        </button>
+                                    ));
+                                })()}
                             </div>
                             {renderInlineBack()}
                         </div>
@@ -177,7 +254,12 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                         <div className="space-y-8 text-center">
                             <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Is there another soul whose energy is intertwined with yours?"</h2>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-ethereal-slide-up delay-1000">
-                                <button onClick={nextIntakeStep} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-indigo-500">YES, A PARTNER</button>
+                                <button onClick={() => {
+                                    handleTransition(() => {
+                                        setIntakeSubStep(IntakeSubStep.PARTNER_DETAILS);
+                                        onStepChange?.(IntakeSubStep.PARTNER_DETAILS);
+                                    });
+                                }} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-indigo-500">YES, A PARTNER</button>
                                 <button
                                     onClick={() => {
                                         handleTransition(() => {
