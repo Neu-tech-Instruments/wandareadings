@@ -551,7 +551,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                                             <input
                                                                 type="text"
                                                                 autoFocus
-                                                                className="w-full bg-transparent border-b border-indigo-900 focus:border-yellow-500 text-xl py-3 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900/50 text-center"
+                                                                className="w-full bg-transparent border-b border-indigo-900 focus:border-yellow-500 text-xl py-3 outline-none text-indigo-100 transition-all font-light placeholder-indigo-400 text-center"
                                                                 placeholder="Partner's Name (Optional)"
                                                                 value={userData.partnerName || ''}
                                                                 onChange={e => setUserData({ ...userData, partnerName: e.target.value })}
