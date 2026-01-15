@@ -43,8 +43,10 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     const handleScroll = () => {
         if (pilesScrollRef.current) {
             const scrollLeft = pilesScrollRef.current.scrollLeft;
-            const width = pilesScrollRef.current.clientWidth;
-            const index = Math.round(scrollLeft / (width * 0.85));
+            // Use window width for 85vw calculation + gap (approx 16px)
+            const cardWidth = window.innerWidth * 0.85;
+            const gap = 16;
+            const index = Math.round(scrollLeft / (cardWidth + gap));
             setActivePileIndex(Math.min(Math.max(index, 0), 2));
         }
     };
