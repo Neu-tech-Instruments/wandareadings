@@ -595,12 +595,11 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                             {userData.question.length > 5 && (
                                                 <button
                                                     onClick={nextIntakeStep}
-                                                    className="w-full bg-gradient-to-r from-yellow-600 to-purple-800 hover:from-yellow-500 hover:to-purple-700 text-white border border-yellow-500/30 px-8 py-5 rounded-xl font-bold tracking-[0.2em] text-sm transition-all shadow-[0_0_25px_rgba(234,179,8,0.2)] hover:shadow-[0_0_40px_rgba(147,51,234,0.4)] active:scale-[0.98] animate-in fade-in zoom-in group relative overflow-hidden"
+                                                    className="w-full bg-yellow-600 hover:bg-yellow-500 text-black border border-yellow-500/50 px-8 py-5 rounded-full font-black tracking-[0.2em] text-sm transition-all shadow-xl shadow-yellow-600/20 active:scale-95 animate-in fade-in zoom-in group relative overflow-hidden"
                                                 >
                                                     <span className="relative z-10 flex items-center justify-center gap-2">
-                                                        UNLOCK MY FULL READING <i className="fas fa-lock-open text-yellow-300"></i>
+                                                        UNLOCK MY FULL READING <i className="fas fa-lock-open text-black/50"></i>
                                                     </span>
-                                                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                                 </button>
                                             )}
                                         </div>
