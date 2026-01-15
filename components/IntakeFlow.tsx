@@ -81,6 +81,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                     }
                 } else if (intakeSubStep === IntakeSubStep.CARD_REVEAL) {
                     nextStep = IntakeSubStep.SITUATION;
+                } else if (intakeSubStep === IntakeSubStep.EMAIL) {
+                    nextStep = IntakeSubStep.DELIVERY_INFO;
                 }
 
                 setIntakeSubStep(nextStep);
@@ -662,7 +664,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {
                         intakeSubStep === IntakeSubStep.DELIVERY_INFO && (
-                            <div className="fixed inset-0 z-[100] bg-black flex flex-col overflow-y-auto">
+                            <div className="fixed inset-0 z-[200] bg-black flex flex-col overflow-y-auto">
                                 {/* Full screen overlay for Delivery Info step */}
                                 <div className="min-h-screen flex flex-col items-center justify-start pt-20 px-6 relative w-full pb-12">
                                     <VideoBackground />
