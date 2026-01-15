@@ -216,8 +216,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                         <div className="space-y-8 text-center w-full">
                             {userData.readingCategory === 'CardPile' ? (
                                 // New "Pick a Card" Immersive UI
-                                <div className="animate-ethereal-fade-in w-full max-w-4xl mx-auto relative pb-10">
-                                    <div className="mb-8 space-y-4">
+                                <div className="animate-ethereal-fade-in w-full max-w-4xl mx-auto relative">
+                                    <div className="mb-4 space-y-2">
                                         <h2 className="text-2xl md:text-5xl font-serif-mystic text-yellow-500 tracking-wider drop-shadow-lg">
                                             "The Universe speaks in symbols."
                                         </h2>
@@ -271,9 +271,9 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                                     />
                                                 </div>
 
-                                                {/* Glassmorphism Button */}
+                                                {/* Glassmorphism Button - HIDDEN ON MOBILE, Visible on Desktop */}
                                                 <button
-                                                    className="w-full bg-indigo-950/40 backdrop-blur-md border border-indigo-500/30 text-indigo-100 py-4 rounded-xl font-bold tracking-[0.2em] text-sm group-hover:bg-indigo-900/60 group-hover:border-yellow-500 group-hover:text-yellow-400 group-hover:shadow-[0_0_15px_rgba(234,179,8,0.2)] transition-all duration-300"
+                                                    className="hidden md:block w-full bg-indigo-950/40 backdrop-blur-md border border-indigo-500/30 text-indigo-100 py-4 rounded-xl font-bold tracking-[0.2em] text-sm group-hover:bg-indigo-900/60 group-hover:border-yellow-500 group-hover:text-yellow-400 group-hover:shadow-[0_0_15px_rgba(234,179,8,0.2)] transition-all duration-300"
                                                 >
                                                     {pile.label}
                                                 </button>
@@ -281,14 +281,42 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         ))}
                                     </div>
 
-                                    {/* Mobile Indicators - Positioned between image and button */}
-                                    <div className="absolute bottom-[6rem] left-0 right-0 flex md:hidden justify-center gap-3 z-10 pointer-events-none">
+                                    {/* Mobile Indicators - Standard Layout */}
+                                    <div className="flex md:hidden justify-center gap-3 my-4">
                                         {[0, 1, 2].map(i => (
                                             <div
                                                 key={i}
                                                 className={`h-1.5 rounded-full transition-all duration-300 ${i === activePileIndex ? 'w-8 bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'w-1.5 bg-indigo-900/50'}`}
                                             />
                                         ))}
+                                    </div>
+
+                                    {/* Mobile Action Button */}
+                                    <div className="md:hidden px-4 pb-8">
+                                        <button
+                                            onClick={() => {
+                                                const piles = [
+                                                    { id: 'Pile 1', label: '✨ PILE 1' },
+                                                    { id: 'Pile 2', label: '🔮 PILE 2' },
+                                                    { id: 'Pile 3', label: '🌙 PILE 3' }
+                                                ];
+                                                const selectedPile = piles[activePileIndex];
+
+                                                handleTransition(() => {
+                                                    setUserData({ ...userData, readingType: selectedPile.id, cardPile: selectedPile.id });
+                                                    const nextStep = IntakeSubStep.SITUATION;
+                                                    setIntakeSubStep(nextStep);
+                                                    onStepChange?.(nextStep);
+                                                });
+                                            }}
+                                            className="w-full bg-indigo-950/60 backdrop-blur-md border border-yellow-500/50 text-yellow-400 py-4 rounded-xl font-bold tracking-[0.2em] text-lg shadow-[0_0_15px_rgba(234,179,8,0.15)] animate-in fade-in slide-in-from-bottom-4"
+                                        >
+                                            {[
+                                                '✨ PILE 1',
+                                                '🔮 PILE 2',
+                                                '🌙 PILE 3'
+                                            ][activePileIndex]}
+                                        </button>
                                     </div>
                                 </div>
                             ) : (
