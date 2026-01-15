@@ -28,7 +28,6 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     reviews,
     isLoading,
     onStepChange,
-    intakeContent,
     initialStep = IntakeSubStep.NAME
 }) => {
     const [intakeSubStep, setIntakeSubStep] = useState<IntakeSubStep>(initialStep);
@@ -73,18 +72,13 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                     if (userData.readingCategory === 'Love') {
                         nextStep = IntakeSubStep.PARTNER_QUERY;
                     } else if (userData.readingCategory === 'CardPile') {
-                        nextStep = IntakeSubStep.REVEAL_INTERPRETATION;
+                        nextStep = IntakeSubStep.CARD_REVEAL;
                     } else {
                         // Skip Partner logic for Career, General
                         nextStep = IntakeSubStep.SITUATION;
                     }
-                } else if (intakeSubStep === IntakeSubStep.REVEAL_INTERPRETATION) {
-                    // From Reveal -> Branch based on chosen category
-                    if (userData.readingCategory === 'Love') {
-                        nextStep = IntakeSubStep.PARTNER_QUERY;
-                    } else {
-                        nextStep = IntakeSubStep.SITUATION;
-                    }
+                } else if (intakeSubStep === IntakeSubStep.CARD_REVEAL) {
+                    nextStep = IntakeSubStep.SITUATION;
                 }
 
                 setIntakeSubStep(nextStep);
@@ -99,23 +93,16 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
             // Branching Back Logic
             if (intakeSubStep === IntakeSubStep.SITUATION) {
-                if (userData.readingCategory !== 'Love') {
-                    // If not Love...
-                    if (userData.cardPile) {
-                        // If it was a Card Pile reading, go back to Reveal
-                        prevStep = IntakeSubStep.REVEAL_INTERPRETATION;
-                    } else {
-                        // Otherwise go back to SUB_PATH
-                        prevStep = IntakeSubStep.SUB_PATH;
-                    }
-                }
-            } else if (intakeSubStep === IntakeSubStep.PARTNER_QUERY) {
-                if (userData.cardPile) {
-                    prevStep = IntakeSubStep.REVEAL_INTERPRETATION;
+                if (userData.readingCategory === 'Love') {
+                    // Love goes back to partner details (default flow)
+                } else if (userData.readingCategory === 'CardPile') {
+                    // Card Pile goes back to Reveal
+                    prevStep = IntakeSubStep.CARD_REVEAL;
                 } else {
+                    // Others go back to SUB_PATH
                     prevStep = IntakeSubStep.SUB_PATH;
                 }
-            } else if (intakeSubStep === IntakeSubStep.REVEAL_INTERPRETATION) {
+            } else if (intakeSubStep === IntakeSubStep.CARD_REVEAL) {
                 prevStep = IntakeSubStep.SUB_PATH;
             }
 
@@ -135,10 +122,6 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
             setShowDateError(true);
         }
     };
-
-
-
-
 
     const renderInlineBack = () => (
         <button
@@ -163,25 +146,22 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {intakeSubStep === IntakeSubStep.NAME && (
                         <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-3xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">{intakeContent.greeting}</h2>
-                            <div className="space-y-4 max-w-sm mx-auto animate-ethereal-slide-up delay-1000">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"First, let me feel your presence. What is your full name?"</h2>
+                            <div className="relative animate-ethereal-slide-up delay-1000">
                                 <input
                                     autoFocus
                                     type="text"
-                                    className="w-full bg-transparent border-b border-indigo-900 focus:border-yellow-500 text-xl py-3 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900"
-                                    placeholder="Your full name..."
+                                    className="w-full bg-transparent border-b-2 border-indigo-900 focus:border-yellow-500 text-2xl md:text-3xl text-center py-4 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900"
+                                    placeholder="Type your name..."
                                     value={userData.name}
-                                    onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                                    onKeyDown={(e) => e.key === 'Enter' && userData.name && nextIntakeStep()}
+                                    onChange={e => setUserData({ ...userData, name: e.target.value })}
+                                    onKeyDown={e => e.key === 'Enter' && userData.name && nextIntakeStep()}
                                 />
-                                <button
-                                    onClick={nextIntakeStep}
-                                    disabled={!userData.name}
-                                    className="w-full mt-4 bg-indigo-950 hover:bg-indigo-900 text-indigo-200 disabled:opacity-30 disabled:cursor-not-allowed py-4 rounded-full font-bold tracking-[0.2em] text-xs transition-all border border-indigo-900"
-                                >
-                                    BEGIN JOURNEY
-                                </button>
+                                {userData.name && (
+                                    <button onClick={nextIntakeStep} className="mt-12 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all animate-in fade-in zoom-in">CONTINUE</button>
+                                )}
                             </div>
+                            {renderInlineBack()}
                         </div>
                     )}
 
@@ -210,202 +190,273 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                             </div>
                             {renderInlineBack()}
                         </div>
-                    )
-                    }
+                    )}
 
-                    {
-                        intakeSubStep === IntakeSubStep.CATEGORY && (
-                            <div className="space-y-8 text-center">
-                                <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Which path of destiny are we exploring today?"</h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
-                                    {[
-                                        { label: 'LOVE & RELATIONSHIPS', value: 'Love' },
-                                        { label: 'CAREER & WEALTH', value: 'Career' },
-                                        { label: 'LIFE PURPOSE & SPIRITUALITY', value: 'General' },
-                                        { label: 'I PICKED A CARD PILE', value: 'CardPile' }
-                                    ].map(option => (
+                    {intakeSubStep === IntakeSubStep.CATEGORY && (
+                        <div className="space-y-8 text-center">
+                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Which path of destiny are we exploring today?"</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
+                                {[
+                                    { label: 'LOVE & RELATIONSHIPS', value: 'Love' },
+                                    { label: 'CAREER & WEALTH', value: 'Career' },
+                                    { label: 'LIFE PURPOSE & SPIRITUALITY', value: 'General' },
+                                    { label: 'I PICKED A CARD PILE', value: 'CardPile' }
+                                ].map(option => (
+                                    <button
+                                        key={option.value}
+                                        onClick={() => {
+                                            handleTransition(() => {
+                                                setUserData({ ...userData, readingCategory: option.value as any });
+                                                const nextStep = IntakeSubStep.SUB_PATH;
+                                                setIntakeSubStep(nextStep);
+                                                onStepChange?.(nextStep);
+                                            });
+                                        }}
+                                        className={`p-6 rounded-2xl border transition-all text-sm font-bold tracking-widest uppercase
+                      ${userData.readingCategory === option.value ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
+                    `}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
+                            </div>
+                            {renderInlineBack()}
+                        </div>
+                    )}
+                    {intakeSubStep === IntakeSubStep.SUB_PATH && (
+                        <div className="space-y-8 text-center w-full">
+                            {userData.readingCategory === 'CardPile' ? (
+                                // New "Pick a Card" Immersive UI
+                                <div className="animate-ethereal-fade-in w-full max-w-4xl mx-auto relative">
+                                    <div className="mb-4 space-y-2">
+                                        <h2 className="text-2xl md:text-5xl font-serif-mystic text-yellow-500 tracking-wider drop-shadow-lg">
+                                            "The Universe speaks in symbols."
+                                        </h2>
+                                        <p className="text-indigo-200/80 font-light text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
+                                            Focus on your burning question—whether it is about love, career, or the future.
+                                            Let your intuition guide you. Which pile draws your eye?
+                                        </p>
+                                    </div>
+
+                                    <div
+                                        ref={pilesScrollRef}
+                                        onScroll={handleScroll}
+                                        className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-4 md:gap-6 pb-4 px-[7.5vw] md:px-0 -mx-6 md:mx-0 w-[calc(100%+3rem)] md:w-full [&::-webkit-scrollbar]:hidden"
+                                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                                    >
+                                        {[
+                                            { id: 'Pile 1', img: '/images/piles/pile1.png', label: '✨ PILE 1' },
+                                            { id: 'Pile 2', img: '/images/piles/pile2.png', label: '🔮 PILE 2' },
+                                            { id: 'Pile 3', img: '/images/piles/pile3.png', label: '🌙 PILE 3' }
+                                        ].map((pile, idx) => (
+                                            <div
+                                                key={pile.id}
+                                                className="group flex flex-col items-center gap-6 md:gap-4 cursor-pointer min-w-[85vw] md:min-w-0 md:w-auto snap-center"
+                                                onTouchStart={(e) => {
+                                                    dragStartRef.current = e.touches[0].clientX;
+                                                    isDraggingRef.current = false;
+                                                }}
+                                                onTouchMove={(e) => {
+                                                    if (Math.abs(e.touches[0].clientX - dragStartRef.current) > 10) {
+                                                        isDraggingRef.current = true;
+                                                    }
+                                                }}
+                                                onClick={() => {
+                                                    if (isDraggingRef.current) return;
+
+                                                    handleTransition(() => {
+                                                        setUserData({ ...userData, readingType: pile.id, cardPile: pile.id });
+                                                        const nextStep = IntakeSubStep.CARD_REVEAL;
+                                                        setIntakeSubStep(nextStep);
+                                                        onStepChange?.(nextStep);
+                                                    });
+                                                }}
+                                            >
+                                                {/* Image Container with Glow */}
+                                                <div className="relative w-full h-72 md:h-auto md:aspect-[3/4] overflow-hidden rounded-xl border border-indigo-500/30 group-hover:border-yellow-500/70 transition-all duration-500 shadow-2xl shadow-indigo-900/40 group-hover:shadow-yellow-500/20">
+                                                    <div className="absolute inset-0 bg-indigo-900/20 group-hover:bg-transparent transition-colors z-10"></div>
+                                                    <img
+                                                        src={pile.img}
+                                                        alt={pile.id}
+                                                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
+                                                    />
+                                                </div>
+
+                                                {/* Glassmorphism Button - HIDDEN ON MOBILE, Visible on Desktop */}
+                                                <button
+                                                    className="hidden md:block w-full bg-indigo-950/40 backdrop-blur-md border border-indigo-500/30 text-indigo-100 py-4 rounded-xl font-bold tracking-[0.2em] text-sm group-hover:bg-indigo-900/60 group-hover:border-yellow-500 group-hover:text-yellow-400 group-hover:shadow-[0_0_15px_rgba(234,179,8,0.2)] transition-all duration-300"
+                                                >
+                                                    {pile.label}
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Mobile Indicators - Standard Layout */}
+                                    <div className="flex md:hidden justify-center gap-3 my-4">
+                                        {[0, 1, 2].map(i => (
+                                            <div
+                                                key={i}
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${i === activePileIndex ? 'w-8 bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'w-1.5 bg-indigo-900/50'}`}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Mobile Action Button */}
+                                    <div className="md:hidden px-4 pb-8">
                                         <button
-                                            key={option.value}
                                             onClick={() => {
+                                                const piles = [
+                                                    { id: 'Pile 1', label: '✨ PILE 1' },
+                                                    { id: 'Pile 2', label: '🔮 PILE 2' },
+                                                    { id: 'Pile 3', label: '🌙 PILE 3' }
+                                                ];
+                                                const selectedPile = piles[activePileIndex];
+
                                                 handleTransition(() => {
-                                                    setUserData({ ...userData, readingCategory: option.value as any });
-                                                    const nextStep = IntakeSubStep.SUB_PATH;
+                                                    setUserData({ ...userData, readingType: selectedPile.id, cardPile: selectedPile.id });
+                                                    const nextStep = IntakeSubStep.CARD_REVEAL;
                                                     setIntakeSubStep(nextStep);
                                                     onStepChange?.(nextStep);
                                                 });
                                             }}
-                                            className={`p-6 rounded-2xl border transition-all text-sm font-bold tracking-widest uppercase
-                      ${userData.readingCategory === option.value ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
-                    `}
-                                        >
-                                            {option.label}
-                                        </button>
-                                    ))}
-                                </div>
-                                {renderInlineBack()}
-                            </div>
-                        )
-                    }
-                    {
-                        intakeSubStep === IntakeSubStep.SUB_PATH && (
-                            <div className="space-y-8 text-center w-full">
-                                {userData.readingCategory === 'CardPile' ? (
-                                    // New "Pick a Card" Immersive UI
-                                    <div className="animate-ethereal-fade-in w-full max-w-4xl mx-auto relative">
-                                        <div className="mb-4 space-y-2">
-                                            <h2 className="text-2xl md:text-5xl font-serif-mystic text-yellow-500 tracking-wider drop-shadow-lg">
-                                                "The Universe speaks in symbols."
-                                            </h2>
-                                            <p className="text-indigo-200/80 font-light text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
-                                                Focus on your burning question—whether it is about love, career, or the future.
-                                                Let your intuition guide you. Which pile draws your eye?
-                                            </p>
-                                        </div>
-
-                                        <div
-                                            ref={pilesScrollRef}
-                                            onScroll={handleScroll}
-                                            className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-4 md:gap-6 pb-4 px-[7.5vw] md:px-0 -mx-6 md:mx-0 w-[calc(100%+3rem)] md:w-full [&::-webkit-scrollbar]:hidden"
-                                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                                            className="w-full bg-indigo-950/60 backdrop-blur-md border border-yellow-500/50 text-yellow-400 py-4 rounded-xl font-bold tracking-[0.2em] text-lg shadow-[0_0_15px_rgba(234,179,8,0.15)] animate-in fade-in slide-in-from-bottom-4"
                                         >
                                             {[
-                                                { id: 'Pile 1', img: '/images/piles/pile1.png', label: '✨ PILE 1' },
-                                                { id: 'Pile 2', img: '/images/piles/pile2.png', label: '🔮 PILE 2' },
-                                                { id: 'Pile 3', img: '/images/piles/pile3.png', label: '🌙 PILE 3' }
-                                            ].map((pile, idx) => (
-                                                <div
-                                                    key={pile.id}
-                                                    className="group flex flex-col items-center gap-6 md:gap-4 cursor-pointer min-w-[85vw] md:min-w-0 md:w-auto snap-center"
-                                                    onTouchStart={(e) => {
-                                                        dragStartRef.current = e.touches[0].clientX;
-                                                        isDraggingRef.current = false;
-                                                    }}
-                                                    onTouchMove={(e) => {
-                                                        if (Math.abs(e.touches[0].clientX - dragStartRef.current) > 10) {
-                                                            isDraggingRef.current = true;
-                                                        }
-                                                    }}
-                                                    onClick={() => {
-                                                        if (isDraggingRef.current) return;
+                                                '✨ PILE 1',
+                                                '🔮 PILE 2',
+                                                '🌙 PILE 3'
+                                            ][activePileIndex]}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                // Generic UI for Other Categories
+                                <>
+                                    <h2 className="text-2xl md:text-3xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">
+                                        {userData.readingCategory === 'Love' && "What is your specific situation?"}
+                                        {userData.readingCategory === 'Career' && "What is your current professional status?"}
+                                        {userData.readingCategory === 'General' && "What is calling to your soul?"}
+                                    </h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
+                                        {(() => {
+                                            let options: string[] = [];
+                                            if (userData.readingCategory === 'Love') options = ['Twin Flame Bond', 'Soulmate Discovery', 'Breakup Recovery', 'Seeking Love'];
+                                            if (userData.readingCategory === 'Career') options = ['Employed', 'Looking for Work', 'Entrepreneur', 'Feeling Stuck'];
+                                            if (userData.readingCategory === 'General') options = ['Feeling Lost', 'Seeking Purpose', 'Spiritual Awakening', 'What\'s Next?'];
+                                            // CardPile options handled above
 
+                                            return options.map(opt => (
+                                                <button
+                                                    key={opt}
+                                                    onClick={() => {
                                                         handleTransition(() => {
-                                                            setUserData({ ...userData, readingType: pile.id, cardPile: pile.id });
-                                                            const nextStep = IntakeSubStep.SITUATION;
+                                                            // Set specific fields based on category
+                                                            const updates: Partial<UserData> = { readingType: opt };
+                                                            if (userData.readingCategory === 'Career') updates.careerStatus = opt;
+
+                                                            setUserData({ ...userData, ...updates });
+
+                                                            // Branching forward logic
+                                                            let nextStep = IntakeSubStep.SITUATION;
+                                                            if (userData.readingCategory === 'Love') {
+                                                                nextStep = IntakeSubStep.PARTNER_QUERY;
+                                                            }
+
                                                             setIntakeSubStep(nextStep);
                                                             onStepChange?.(nextStep);
                                                         });
                                                     }}
+                                                    className={`p-5 rounded-xl border transition-all text-xs md:text-sm font-bold tracking-wider uppercase
+                                                    ${userData.readingType === opt ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
+                                                    `}
                                                 >
-                                                    {/* Image Container with Glow */}
-                                                    <div className="relative w-full h-72 md:h-auto md:aspect-[3/4] overflow-hidden rounded-xl border border-indigo-500/30 group-hover:border-yellow-500/70 transition-all duration-500 shadow-2xl shadow-indigo-900/40 group-hover:shadow-yellow-500/20">
-                                                        <div className="absolute inset-0 bg-indigo-900/20 group-hover:bg-transparent transition-colors z-10"></div>
-                                                        <img
-                                                            src={pile.img}
-                                                            alt={pile.id}
-                                                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
-                                                        />
-                                                    </div>
+                                                    {opt}
+                                                </button>
+                                            ));
+                                        })()}
+                                    </div>
+                                </>
+                            )}
+                            {renderInlineBack()}
+                        </div>
+                    )
+                    }
 
-                                                    {/* Glassmorphism Button - HIDDEN ON MOBILE, Visible on Desktop */}
-                                                    <button
-                                                        className="hidden md:block w-full bg-indigo-950/40 backdrop-blur-md border border-indigo-500/30 text-indigo-100 py-4 rounded-xl font-bold tracking-[0.2em] text-sm group-hover:bg-indigo-900/60 group-hover:border-yellow-500 group-hover:text-yellow-400 group-hover:shadow-[0_0_15px_rgba(234,179,8,0.2)] transition-all duration-300"
-                                                    >
-                                                        {pile.label}
-                                                    </button>
-                                                </div>
-                                            ))}
+                    {intakeSubStep === IntakeSubStep.CARD_REVEAL && userData.cardPile && (
+                        <div className="space-y-8 text-center w-full max-w-4xl mx-auto">
+                            <div className="animate-ethereal-fade-in flex flex-col items-center">
+                                {/* 1. Visual: Selected Pile Image */}
+                                <div className="relative w-64 h-80 md:w-80 md:h-[30rem] mb-8 group">
+                                    <div className="absolute inset-0 bg-yellow-500/20 blur-3xl animate-pulse rounded-full"></div>
+                                    <div className="relative w-full h-full overflow-hidden rounded-2xl border-2 border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform transition-transform duration-700 hover:scale-[1.02]">
+                                        <img
+                                            src={
+                                                userData.cardPile === 'Pile 1' ? '/images/piles/pile1.png' :
+                                                    userData.cardPile === 'Pile 2' ? '/images/piles/pile2.png' :
+                                                        '/images/piles/pile3.png'
+                                            }
+                                            alt={userData.cardPile}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/80 via-transparent to-transparent"></div>
+                                        <div className="absolute bottom-4 left-0 right-0 text-center">
+                                            <span className="text-yellow-400 font-serif-mystic tracking-[0.2em] text-xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                                                {userData.cardPile.toUpperCase()}
+                                            </span>
                                         </div>
+                                    </div>
+                                </div>
 
-                                        {/* Mobile Indicators - Standard Layout */}
-                                        <div className="flex md:hidden justify-center gap-3 my-4">
-                                            {[0, 1, 2].map(i => (
-                                                <div
-                                                    key={i}
-                                                    className={`h-1.5 rounded-full transition-all duration-300 ${i === activePileIndex ? 'w-8 bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'w-1.5 bg-indigo-900/50'}`}
-                                                />
-                                            ))}
-                                        </div>
+                                {/* 2. The Hook */}
+                                <div className="mb-10 space-y-4 max-w-2xl px-4 animate-ethereal-slide-up delay-300">
+                                    <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 leading-tight">
+                                        "A powerful energy radiates from this pile."
+                                    </h2>
+                                    <p className="text-indigo-200/80 font-light text-sm md:text-lg leading-relaxed">
+                                        The cards reveal a significant shift on your horizon, but the message depends on where you are currently focusing your energy.
+                                    </p>
+                                </div>
 
-                                        {/* Mobile Action Button */}
-                                        <div className="md:hidden px-4 pb-8">
+                                {/* 3. The Pivot & 4. Buttons */}
+                                <div className="w-full max-w-sm md:max-w-3xl space-y-6 animate-ethereal-slide-up delay-700">
+                                    <p className="text-yellow-500/90 text-sm md:text-base font-bold tracking-widest uppercase mb-4">
+                                        To interpret this message accurately for you, tell Wanda: What area of life is this related to?
+                                    </p>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {[
+                                            { label: "❤️ Love & Relationships", value: "Love" },
+                                            { label: "💼 Career & Wealth", value: "Career" },
+                                            { label: "🌟 My Soul's Purpose", value: "Soul Purpose" }
+                                        ].map((option) => (
                                             <button
+                                                key={option.value}
                                                 onClick={() => {
-                                                    const piles = [
-                                                        { id: 'Pile 1', label: '✨ PILE 1' },
-                                                        { id: 'Pile 2', label: '🔮 PILE 2' },
-                                                        { id: 'Pile 3', label: '🌙 PILE 3' }
-                                                    ];
-                                                    const selectedPile = piles[activePileIndex];
-
                                                     handleTransition(() => {
-                                                        setUserData({ ...userData, readingType: selectedPile.id, cardPile: selectedPile.id });
+                                                        setUserData({
+                                                            ...userData,
+                                                            focusArea: option.value as any,
+                                                            // Also set readingCategory contextually if we want, but keeping it as CardPile is safer for now.
+                                                            // We can pass this focusArea to the prompt.
+                                                        });
                                                         const nextStep = IntakeSubStep.SITUATION;
                                                         setIntakeSubStep(nextStep);
                                                         onStepChange?.(nextStep);
                                                     });
                                                 }}
-                                                className="w-full bg-indigo-950/60 backdrop-blur-md border border-yellow-500/50 text-yellow-400 py-4 rounded-xl font-bold tracking-[0.2em] text-lg shadow-[0_0_15px_rgba(234,179,8,0.15)] animate-in fade-in slide-in-from-bottom-4"
+                                                className="bg-indigo-950/40 backdrop-blur-md border border-indigo-500/30 hover:border-yellow-500/50 hover:bg-indigo-900/60 text-indigo-100 hover:text-yellow-200 py-4 px-6 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg hover:shadow-yellow-500/10 flex flex-col items-center justify-center gap-2 group h-full"
                                             >
-                                                {[
-                                                    '✨ PILE 1',
-                                                    '🔮 PILE 2',
-                                                    '🌙 PILE 3'
-                                                ][activePileIndex]}
+                                                <span className="transform group-hover:scale-105 transition-transform">{option.label.split(' ')[0]}</span>
+                                                <span className="uppercase tracking-wider text-xs md:text-[10px] opacity-80 group-hover:opacity-100">{option.label.substring(option.label.indexOf(' ') + 1)}</span>
                                             </button>
-                                        </div>
+                                        ))}
                                     </div>
-                                ) : (
-                                    // Generic UI for Other Categories
-                                    <>
-                                        <h2 className="text-2xl md:text-3xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">
-                                            {userData.readingCategory === 'Love' && "What is your specific situation?"}
-                                            {userData.readingCategory === 'Career' && "What is your current professional status?"}
-                                            {userData.readingCategory === 'General' && "What is calling to your soul?"}
-                                        </h2>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
-                                            {(() => {
-                                                let options: string[] = [];
-                                                if (userData.readingCategory === 'Love') options = ['Twin Flame Bond', 'Soulmate Discovery', 'Breakup Recovery', 'Seeking Love'];
-                                                if (userData.readingCategory === 'Career') options = ['Employed', 'Looking for Work', 'Entrepreneur', 'Feeling Stuck'];
-                                                if (userData.readingCategory === 'General') options = ['Feeling Lost', 'Seeking Purpose', 'Spiritual Awakening', 'What\'s Next?'];
-                                                // CardPile options handled above
-
-                                                return options.map(opt => (
-                                                    <button
-                                                        key={opt}
-                                                        onClick={() => {
-                                                            handleTransition(() => {
-                                                                // Set specific fields based on category
-                                                                const updates: Partial<UserData> = { readingType: opt };
-                                                                if (userData.readingCategory === 'Career') updates.careerStatus = opt;
-
-                                                                setUserData({ ...userData, ...updates });
-
-                                                                // Branching forward logic
-                                                                let nextStep = IntakeSubStep.SITUATION;
-                                                                if (userData.readingCategory === 'Love') {
-                                                                    nextStep = IntakeSubStep.PARTNER_QUERY;
-                                                                }
-
-                                                                setIntakeSubStep(nextStep);
-                                                                onStepChange?.(nextStep);
-                                                            });
-                                                        }}
-                                                        className={`p-5 rounded-xl border transition-all text-xs md:text-sm font-bold tracking-wider uppercase
-                                                    ${userData.readingType === opt ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
-                                                    `}
-                                                    >
-                                                        {opt}
-                                                    </button>
-                                                ));
-                                            })()}
-                                        </div>
-                                    </>
-                                )}
-                                {renderInlineBack()}
+                                </div>
                             </div>
-                        )
-                    }
+                            {renderInlineBack()}
+                        </div>
+                    )}
 
                     {
                         intakeSubStep === IntakeSubStep.PARTNER_QUERY && (

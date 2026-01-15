@@ -12,7 +12,7 @@ export enum IntakeSubStep {
   BIRTHDATE,
   CATEGORY,
   SUB_PATH,
-  REVEAL_INTERPRETATION,
+  CARD_REVEAL,
   PARTNER_QUERY,
   PARTNER_DETAILS,
   SITUATION,
@@ -32,6 +32,7 @@ export interface UserData {
   readingCategory?: 'Love' | 'Career' | 'General' | 'CardPile';
   careerStatus?: string;
   cardPile?: string;
+  focusArea?: 'Love' | 'Career' | 'Soul Purpose';
 }
 
 export interface Review {

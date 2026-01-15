@@ -109,8 +109,8 @@ export const getFullReading = async (userData: UserData): Promise<FullReadingCon
       contextSpecifics = `Career Status: ${userData.careerStatus}.`;
       p1Instruction = `Paragraph 1 (The Professional Aura): Tune into ${userData.name}'s professional energy field. Describe the blocks or flows of abundance you sense around them.`;
     } else if (userData.readingCategory === 'CardPile') {
-      contextSpecifics = `Selected Pile: ${userData.cardPile}.`;
-      p1Instruction = `Paragraph 1 (The Cards): Tune into the specific energy of ${userData.cardPile} that called to ${userData.name}. Describe the imagery and immediate feeling of this pile.`;
+      contextSpecifics = `Selected Pile: ${userData.cardPile}. Focus Area: ${userData.focusArea}.`;
+      p1Instruction = `Paragraph 1 (The Cards): Tune into the specific energy of ${userData.cardPile} that called to ${userData.name} regarding their focus on ${userData.focusArea}. Describe the imagery and immediate feeling of this pile.`;
     } else {
       contextSpecifics = "Focus: Life Purpose / Spiritual Path.";
       p1Instruction = `Paragraph 1 (The Soul Path): Tune into ${userData.name}'s higher self and spiritual aura. Describe the current phase of their soul's journey and the vibration they are emitting.`;
