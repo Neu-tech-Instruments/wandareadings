@@ -164,7 +164,7 @@ export const localizeExperience = async (
       
       Tasks:
       1. Translate the reviews (originally in Dutch) into the local primary language.
-      2. Translate the Hero text. Source Title: "Discover Your True Path". Source Subtitle: "Receive a deep-dive psychic reading from Wanda to illuminate your path. Whether you seek answers in love, career, or your soul's purpose, find the guidance you need to move forward with confidence."
+      2. Translate the Hero text. Source Title: "Discover Your True\u00A0Path". Source Subtitle: "Illuminate your true path. Deep psychic insights into love, career, and your soul's purpose."
       3. Translate Wanda's detailed service description (the "Intake Intro") into a warm, professional, spiritual tone in the target language.
       
       Intake Intro to translate: ${wandaIntroText}`,
@@ -219,8 +219,8 @@ export const localizeExperience = async (
     return {
       reviews,
       hero: {
-        title: "Discover Your True Path",
-        subtitle: "Receive a deep-dive psychic reading from Wanda to illuminate your path. Whether you seek answers in love, career, or your soul's purpose, find the guidance you need to move forward with confidence.",
+        title: "Discover Your True\u00A0Path",
+        subtitle: "Illuminate your true path. Deep psychic insights into love, career, and your soul's purpose.",
         cta: "START YOUR INQUIRY"
       },
       intake: {

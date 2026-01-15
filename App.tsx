@@ -50,7 +50,7 @@ const App: React.FC = () => {
     }, 800);
   };
   const [heroContent, setHeroContent] = useState({
-    title: "Discover Your True Path",
+    title: "Discover Your True\u00A0Path",
     subtitle: "Illuminate your true path. Deep psychic insights into love, career, and your soul's purpose.",
     cta: "START YOUR INQUIRY"
   });
