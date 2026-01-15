@@ -1,7 +1,6 @@
 
 export enum AppStep {
   LANDING = 'LANDING',
-  PICK_A_CARD = 'PICK_A_CARD',
   INTAKE = 'INTAKE',
   PROCESSING = 'PROCESSING',
   REVEAL = 'REVEAL',

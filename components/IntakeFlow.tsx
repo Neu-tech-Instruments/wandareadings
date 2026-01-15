@@ -50,16 +50,6 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
             handleTransition(() => {
                 let nextStep = intakeSubStep + 1;
 
-                // Skip Category selection if already defined (e.g. from Pick A Card flow)
-                if (nextStep === IntakeSubStep.CATEGORY && userData.readingCategory) {
-                    nextStep = IntakeSubStep.SUB_PATH;
-
-                    // Optimization: If we already have the sub-details? No, PickACard gives Category only (Love, Career, General).
-                    // But wait, my PickACard component only sets 'readingCategory' (Love/Career/General) and 'cardPile'.
-                    // It does NOT set the specific 'readingType' sub-path (Twin Flame, Employed, etc).
-                    // So we MUST go to SUB_PATH. A-OK.
-                }
-
                 // Branching Logic
                 if (intakeSubStep === IntakeSubStep.SUB_PATH) {
                     // After Sub-Path, decide where to go
@@ -210,52 +200,123 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                     )}
 
                     {intakeSubStep === IntakeSubStep.SUB_PATH && (
-                        <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-3xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">
-                                {userData.readingCategory === 'Love' && "What is your specific situation?"}
-                                {userData.readingCategory === 'Career' && "What is your current professional status?"}
-                                {userData.readingCategory === 'General' && "What is calling to your soul?"}
-                                {userData.readingCategory === 'CardPile' && "Which pile called to you?"}
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
-                                {(() => {
-                                    let options: string[] = [];
-                                    if (userData.readingCategory === 'Love') options = ['Twin Flame Bond', 'Soulmate Discovery', 'Breakup Recovery', 'Seeking Love'];
-                                    if (userData.readingCategory === 'Career') options = ['Employed', 'Looking for Work', 'Entrepreneur', 'Feeling Stuck'];
-                                    if (userData.readingCategory === 'General') options = ['Feeling Lost', 'Seeking Purpose', 'Spiritual Awakening', 'What\'s Next?'];
-                                    if (userData.readingCategory === 'CardPile') options = ['Pile 1', 'Pile 2', 'Pile 3'];
+                        <div className="space-y-8 text-center w-full">
+                            {userData.readingCategory === 'CardPile' ? (
+                                // New "Pick a Card" Immersive UI
+                                <div className="animate-ethereal-fade-in w-full max-w-4xl mx-auto">
+                                    <div className="mb-10 space-y-4">
+                                        <h2 className="text-3xl md:text-5xl font-serif-mystic text-yellow-500 tracking-wider drop-shadow-lg">
+                                            "The Universe speaks in symbols."
+                                        </h2>
+                                        <p className="text-indigo-200/80 font-light text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
+                                            Focus on your burning question—whether it is about love, career, or the future.
+                                            Let your intuition guide you. Which pile draws your eye?
+                                        </p>
+                                    </div>
 
-                                    return options.map(opt => (
-                                        <button
-                                            key={opt}
-                                            onClick={() => {
-                                                handleTransition(() => {
-                                                    // Set specific fields based on category
-                                                    const updates: Partial<UserData> = { readingType: opt };
-                                                    if (userData.readingCategory === 'Career') updates.careerStatus = opt;
-                                                    if (userData.readingCategory === 'CardPile') updates.cardPile = opt;
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 mb-12">
+                                        {[
+                                            { id: 'Pile 1', img: '/images/piles/pile1.png', label: '✨ PILE 1' },
+                                            { id: 'Pile 2', img: '/images/piles/pile2.png', label: '🔮 PILE 2' },
+                                            { id: 'Pile 3', img: '/images/piles/pile3.png', label: '🌙 PILE 3' }
+                                        ].map((pile, idx) => (
+                                            <div
+                                                key={pile.id}
+                                                className="group flex flex-col items-center gap-4 cursor-pointer"
+                                                onClick={() => {
+                                                    handleTransition(() => {
+                                                        setUserData({ ...userData, readingType: pile.id, cardPile: pile.id });
+                                                        // For Card Pile, we skip Partner logic -> go to Situation
+                                                        const nextStep = IntakeSubStep.SITUATION;
+                                                        setIntakeSubStep(nextStep);
+                                                        onStepChange?.(nextStep);
+                                                    });
+                                                }}
+                                            >
+                                                {/* Image Container with Glow */}
+                                                <div className="relative w-full aspect-[4/5] md:aspect-[3/4] overflow-hidden rounded-xl border border-indigo-500/30 group-hover:border-yellow-500/70 transition-all duration-500 shadow-2xl shadow-indigo-900/40 group-hover:shadow-yellow-500/20">
+                                                    <div className="absolute inset-0 bg-indigo-900/20 group-hover:bg-transparent transition-colors z-10"></div>
+                                                    <img
+                                                        src={pile.img}
+                                                        alt={pile.id}
+                                                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
+                                                    />
+                                                </div>
 
-                                                    setUserData({ ...userData, ...updates });
+                                                {/* Glassmorphism Button */}
+                                                <button
+                                                    className="w-full bg-indigo-950/40 backdrop-blur-md border border-indigo-500/30 text-indigo-100 py-4 rounded-xl font-bold tracking-[0.2em] text-sm group-hover:bg-indigo-900/60 group-hover:border-yellow-500 group-hover:text-yellow-400 group-hover:shadow-[0_0_15px_rgba(234,179,8,0.2)] transition-all duration-300"
+                                                >
+                                                    {pile.label}
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
 
-                                                    // Branching forward logic
-                                                    let nextStep = IntakeSubStep.SITUATION;
-                                                    if (userData.readingCategory === 'Love') {
-                                                        nextStep = IntakeSubStep.PARTNER_QUERY;
-                                                    }
+                                    {/* Safety Valve */}
+                                    <button
+                                        onClick={() => {
+                                            handleTransition(() => {
+                                                setUserData({ ...userData, readingType: 'Specific Question' });
+                                                // Skip selection, go to Situation
+                                                const nextStep = IntakeSubStep.SITUATION;
+                                                setIntakeSubStep(nextStep);
+                                                onStepChange?.(nextStep);
+                                            });
+                                        }}
+                                        className="text-xs md:text-sm text-indigo-400/60 hover:text-indigo-200 border-b border-transparent hover:border-indigo-400/50 pb-0.5 transition-all text-center"
+                                    >
+                                        I have a specific question (Skip this step)
+                                    </button>
+                                </div>
+                            ) : (
+                                // Generic UI for Other Categories
+                                <>
+                                    <h2 className="text-2xl md:text-3xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">
+                                        {userData.readingCategory === 'Love' && "What is your specific situation?"}
+                                        {userData.readingCategory === 'Career' && "What is your current professional status?"}
+                                        {userData.readingCategory === 'General' && "What is calling to your soul?"}
+                                    </h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-ethereal-slide-up delay-1000">
+                                        {(() => {
+                                            let options: string[] = [];
+                                            if (userData.readingCategory === 'Love') options = ['Twin Flame Bond', 'Soulmate Discovery', 'Breakup Recovery', 'Seeking Love'];
+                                            if (userData.readingCategory === 'Career') options = ['Employed', 'Looking for Work', 'Entrepreneur', 'Feeling Stuck'];
+                                            if (userData.readingCategory === 'General') options = ['Feeling Lost', 'Seeking Purpose', 'Spiritual Awakening', 'What\'s Next?'];
+                                            // CardPile options handled above
 
-                                                    setIntakeSubStep(nextStep);
-                                                    onStepChange?.(nextStep);
-                                                });
-                                            }}
-                                            className={`p-5 rounded-xl border transition-all text-xs md:text-sm font-bold tracking-wider uppercase
-                                            ${userData.readingType === opt ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
-                                            `}
-                                        >
-                                            {opt}
-                                        </button>
-                                    ));
-                                })()}
-                            </div>
+                                            return options.map(opt => (
+                                                <button
+                                                    key={opt}
+                                                    onClick={() => {
+                                                        handleTransition(() => {
+                                                            // Set specific fields based on category
+                                                            const updates: Partial<UserData> = { readingType: opt };
+                                                            if (userData.readingCategory === 'Career') updates.careerStatus = opt;
+
+                                                            setUserData({ ...userData, ...updates });
+
+                                                            // Branching forward logic
+                                                            let nextStep = IntakeSubStep.SITUATION;
+                                                            if (userData.readingCategory === 'Love') {
+                                                                nextStep = IntakeSubStep.PARTNER_QUERY;
+                                                            }
+
+                                                            setIntakeSubStep(nextStep);
+                                                            onStepChange?.(nextStep);
+                                                        });
+                                                    }}
+                                                    className={`p-5 rounded-xl border transition-all text-xs md:text-sm font-bold tracking-wider uppercase
+                                                    ${userData.readingType === opt ? 'border-yellow-500 bg-yellow-500/10 text-yellow-500' : 'border-indigo-900 hover:border-indigo-500 text-indigo-300'}
+                                                    `}
+                                                >
+                                                    {opt}
+                                                </button>
+                                            ));
+                                        })()}
+                                    </div>
+                                </>
+                            )}
                             {renderInlineBack()}
                         </div>
                     )}
