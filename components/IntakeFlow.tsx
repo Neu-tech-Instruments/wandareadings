@@ -34,6 +34,24 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     const [showDateError, setShowDateError] = useState(false);
     const [isExiting, setIsExiting] = useState(false);
 
+    // Carousel State
+    const [activePileIndex, setActivePileIndex] = useState(0);
+    const pilesScrollRef = React.useRef<HTMLDivElement>(null);
+
+    const handleScroll = () => {
+        if (pilesScrollRef.current) {
+            const scrollLeft = pilesScrollRef.current.scrollLeft;
+            const width = pilesScrollRef.current.clientWidth;
+            // Cards are roughly 85% width. 
+            // We can approximate index by scroll position.
+            // Center of card 0 is at ~42.5vw. Center of card 1 is at ~42.5 + 85 + gap...
+            // Simple logic: scrollLeft / (scrollWidth / 3)
+            // Or simpler: Math.round(scrollLeft / (width * 0.85))
+            const index = Math.round(scrollLeft / (width * 0.85));
+            setActivePileIndex(Math.min(Math.max(index, 0), 2));
+        }
+    };
+
     const handleTransition = (callback: () => void) => {
         setIsExiting(true);
         setTimeout(() => {
@@ -214,7 +232,12 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         </p>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 mb-12">
+                                    <div
+                                        ref={pilesScrollRef}
+                                        onScroll={handleScroll}
+                                        className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-4 md:gap-6 mb-8 md:mb-12 pb-4 px-[7.5vw] md:px-0 -mx-6 md:mx-0 w-[calc(100%+3rem)] md:w-full [&::-webkit-scrollbar]:hidden"
+                                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                                    >
                                         {[
                                             { id: 'Pile 1', img: '/images/piles/pile1.png', label: '✨ PILE 1' },
                                             { id: 'Pile 2', img: '/images/piles/pile2.png', label: '🔮 PILE 2' },
@@ -222,11 +245,11 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         ].map((pile, idx) => (
                                             <div
                                                 key={pile.id}
-                                                className="group flex flex-col items-center gap-4 cursor-pointer"
+                                                className="group flex flex-col items-center gap-4 cursor-pointer min-w-[85vw] md:min-w-0 md:w-auto snap-center"
                                                 onClick={() => {
+                                                    // Only navigate, no need to scroll-snap manually since click implies selection
                                                     handleTransition(() => {
                                                         setUserData({ ...userData, readingType: pile.id, cardPile: pile.id });
-                                                        // For Card Pile, we skip Partner logic -> go to Situation
                                                         const nextStep = IntakeSubStep.SITUATION;
                                                         setIntakeSubStep(nextStep);
                                                         onStepChange?.(nextStep);
@@ -250,6 +273,16 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                                     {pile.label}
                                                 </button>
                                             </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Mobile Indicators */}
+                                    <div className="flex md:hidden justify-center gap-3 mb-8 -mt-4">
+                                        {[0, 1, 2].map(i => (
+                                            <div
+                                                key={i}
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${i === activePileIndex ? 'w-8 bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'w-1.5 bg-indigo-900/50'}`}
+                                            />
                                         ))}
                                     </div>
 
