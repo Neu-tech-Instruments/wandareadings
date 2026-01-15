@@ -50,8 +50,8 @@ const App: React.FC = () => {
     }, 800);
   };
   const [heroContent, setHeroContent] = useState({
-    title: "Discover Your Destiny in Love",
-    subtitle: "Receive a deep-dive psychic reading from Wanda, an expert in twin flames, soul connections, and spiritual clarity.",
+    title: "Discover Your True Path",
+    subtitle: "Receive a deep-dive psychic reading from Wanda to illuminate your path. Whether you seek answers in love, career, or your soul's purpose, find the guidance you need to move forward with confidence.",
     cta: "START YOUR INQUIRY"
   });
   const [intakeContent, setIntakeContent] = useState({
