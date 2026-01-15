@@ -37,20 +37,18 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     // Carousel State
     const [activePileIndex, setActivePileIndex] = useState(0);
     const pilesScrollRef = React.useRef<HTMLDivElement>(null);
+    const dragStartRef = React.useRef<number>(0);
+    const isDraggingRef = React.useRef(false);
 
     const handleScroll = () => {
         if (pilesScrollRef.current) {
             const scrollLeft = pilesScrollRef.current.scrollLeft;
             const width = pilesScrollRef.current.clientWidth;
-            // Cards are roughly 85% width. 
-            // We can approximate index by scroll position.
-            // Center of card 0 is at ~42.5vw. Center of card 1 is at ~42.5 + 85 + gap...
-            // Simple logic: scrollLeft / (scrollWidth / 3)
-            // Or simpler: Math.round(scrollLeft / (width * 0.85))
             const index = Math.round(scrollLeft / (width * 0.85));
             setActivePileIndex(Math.min(Math.max(index, 0), 2));
         }
     };
+
 
     const handleTransition = (callback: () => void) => {
         setIsExiting(true);
@@ -58,7 +56,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
             callback();
             setIsExiting(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 1200); // Even slower wait time
+        }, 1200);
     };
 
     const nextIntakeStep = () => {
@@ -84,8 +82,6 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
             });
         }
     };
-
-    // ... (keep other handlers same)
 
     const handleBack = () => {
         handleTransition(() => {
@@ -216,14 +212,13 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                             {renderInlineBack()}
                         </div>
                     )}
-
                     {intakeSubStep === IntakeSubStep.SUB_PATH && (
                         <div className="space-y-8 text-center w-full">
                             {userData.readingCategory === 'CardPile' ? (
                                 // New "Pick a Card" Immersive UI
                                 <div className="animate-ethereal-fade-in w-full max-w-4xl mx-auto">
                                     <div className="mb-10 space-y-4">
-                                        <h2 className="text-3xl md:text-5xl font-serif-mystic text-yellow-500 tracking-wider drop-shadow-lg">
+                                        <h2 className="text-2xl md:text-5xl font-serif-mystic text-yellow-500 tracking-wider drop-shadow-lg">
                                             "The Universe speaks in symbols."
                                         </h2>
                                         <p className="text-indigo-200/80 font-light text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
@@ -246,8 +241,18 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                             <div
                                                 key={pile.id}
                                                 className="group flex flex-col items-center gap-4 cursor-pointer min-w-[85vw] md:min-w-0 md:w-auto snap-center"
+                                                onTouchStart={(e) => {
+                                                    dragStartRef.current = e.touches[0].clientX;
+                                                    isDraggingRef.current = false;
+                                                }}
+                                                onTouchMove={(e) => {
+                                                    if (Math.abs(e.touches[0].clientX - dragStartRef.current) > 10) {
+                                                        isDraggingRef.current = true;
+                                                    }
+                                                }}
                                                 onClick={() => {
-                                                    // Only navigate, no need to scroll-snap manually since click implies selection
+                                                    if (isDraggingRef.current) return;
+
                                                     handleTransition(() => {
                                                         setUserData({ ...userData, readingType: pile.id, cardPile: pile.id });
                                                         const nextStep = IntakeSubStep.SITUATION;
@@ -257,7 +262,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                                 }}
                                             >
                                                 {/* Image Container with Glow */}
-                                                <div className="relative w-full aspect-[4/5] md:aspect-[3/4] overflow-hidden rounded-xl border border-indigo-500/30 group-hover:border-yellow-500/70 transition-all duration-500 shadow-2xl shadow-indigo-900/40 group-hover:shadow-yellow-500/20">
+                                                <div className="relative w-full h-72 md:h-auto md:aspect-[3/4] overflow-hidden rounded-xl border border-indigo-500/30 group-hover:border-yellow-500/70 transition-all duration-500 shadow-2xl shadow-indigo-900/40 group-hover:shadow-yellow-500/20">
                                                     <div className="absolute inset-0 bg-indigo-900/20 group-hover:bg-transparent transition-colors z-10"></div>
                                                     <img
                                                         src={pile.img}
@@ -352,154 +357,165 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                             )}
                             {renderInlineBack()}
                         </div>
-                    )}
+                    )
+                    }
 
-                    {intakeSubStep === IntakeSubStep.PARTNER_QUERY && (
-                        <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Is there another soul whose energy is intertwined with yours?"</h2>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-ethereal-slide-up delay-1000">
-                                <button onClick={() => {
-                                    handleTransition(() => {
-                                        setIntakeSubStep(IntakeSubStep.PARTNER_DETAILS);
-                                        onStepChange?.(IntakeSubStep.PARTNER_DETAILS);
-                                    });
-                                }} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-indigo-500">YES, A PARTNER</button>
-                                <button
-                                    onClick={() => {
+                    {
+                        intakeSubStep === IntakeSubStep.PARTNER_QUERY && (
+                            <div className="space-y-8 text-center">
+                                <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Is there another soul whose energy is intertwined with yours?"</h2>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center animate-ethereal-slide-up delay-1000">
+                                    <button onClick={() => {
                                         handleTransition(() => {
-                                            setIntakeSubStep(IntakeSubStep.SITUATION);
-                                            onStepChange?.(IntakeSubStep.SITUATION);
+                                            setIntakeSubStep(IntakeSubStep.PARTNER_DETAILS);
+                                            onStepChange?.(IntakeSubStep.PARTNER_DETAILS);
                                         });
-                                    }}
-                                    className="border border-indigo-700 text-indigo-300 px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-indigo-900/40"
-                                >
-                                    NO, JUST MY JOURNEY
-                                </button>
-                            </div>
-                            {renderInlineBack()}
-                        </div>
-                    )}
-
-                    {intakeSubStep === IntakeSubStep.PARTNER_DETAILS && (
-                        <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Tell me of them. Their name and their arrival."</h2>
-                            <div className="space-y-4 max-w-sm mx-auto animate-ethereal-slide-up delay-1000">
-                                <input
-                                    autoFocus
-                                    type="text"
-                                    className="w-full bg-transparent border-b border-indigo-900 focus:border-yellow-500 text-xl py-3 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900"
-                                    placeholder="Their name..."
-                                    value={userData.partnerName}
-                                    onChange={e => setUserData({ ...userData, partnerName: e.target.value })}
-                                />
-                                <input
-                                    type="date"
-                                    className="w-full bg-black/40 border border-indigo-900 rounded-xl px-4 py-3 text-sm text-center outline-none text-indigo-100 focus:border-yellow-500 transition-all"
-                                    value={userData.partnerBirthDate}
-                                    onChange={e => setUserData({ ...userData, partnerBirthDate: e.target.value })}
-                                />
-                                {(userData.partnerName && userData.partnerBirthDate) && (
-                                    <button onClick={nextIntakeStep} className="mt-4 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs transition-all animate-in fade-in zoom-in">CONNECT ENERGIES</button>
-                                )}
-                            </div>
-                            {renderInlineBack()}
-                        </div>
-                    )}
-
-                    {intakeSubStep === IntakeSubStep.SITUATION && (
-                        <div className="space-y-8 text-center max-w-xl mx-auto">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Finally, tell me... what keeps your heart heavy today?"</h2>
-                            <div className="space-y-6 animate-ethereal-slide-up delay-1000">
-                                <textarea
-                                    autoFocus
-                                    rows={5}
-                                    className="w-full bg-black/40 border border-indigo-900 rounded-3xl p-6 text-lg outline-none text-indigo-100 focus:border-yellow-500 transition-all resize-none shadow-2xl"
-                                    placeholder="Share your situation with Wanda..."
-                                    value={userData.question}
-                                    onChange={e => setUserData({ ...userData, question: e.target.value })}
-                                />
-                                {userData.question.length > 10 && (
+                                    }} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-indigo-500">YES, A PARTNER</button>
                                     <button
-                                        onClick={nextIntakeStep}
-                                        className="bg-yellow-600 text-black px-12 py-4 rounded-full font-black tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-yellow-600/20 active:scale-95 animate-in fade-in zoom-in"
+                                        onClick={() => {
+                                            handleTransition(() => {
+                                                setIntakeSubStep(IntakeSubStep.SITUATION);
+                                                onStepChange?.(IntakeSubStep.SITUATION);
+                                            });
+                                        }}
+                                        className="border border-indigo-700 text-indigo-300 px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-indigo-900/40"
                                     >
-                                        CONTINUE
+                                        NO, JUST MY JOURNEY
                                     </button>
-                                )}
+                                </div>
+                                {renderInlineBack()}
                             </div>
-                            {renderInlineBack()}
-                        </div>
-                    )}
+                        )
+                    }
 
-                    {intakeSubStep === IntakeSubStep.EMAIL && (
-                        <div className="space-y-8 text-center">
-                            <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Where shall I send my written vision?"</h2>
-                            <div className="relative max-w-sm mx-auto animate-ethereal-slide-up delay-1000">
-                                <input
-                                    autoFocus
-                                    type="email"
-                                    className="w-full bg-transparent border-b-2 border-indigo-900 focus:border-yellow-500 text-2xl md:text-2xl text-center py-4 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900"
-                                    placeholder="Your email address..."
-                                    value={userData.email}
-                                    onChange={e => setUserData({ ...userData, email: e.target.value })}
-                                    onKeyDown={e => e.key === 'Enter' && userData.email.includes('@') && nextIntakeStep()}
-                                />
-                                {userData.email && userData.email.includes('@') && (
-                                    <button onClick={nextIntakeStep} className="mt-12 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all animate-in fade-in zoom-in">REVEAL MY PATH</button>
-                                )}
-                                <p className="mt-4 text-[10px] text-indigo-400/60 uppercase tracking-widest">Strictly Confidential</p>
+                    {
+                        intakeSubStep === IntakeSubStep.PARTNER_DETAILS && (
+                            <div className="space-y-8 text-center">
+                                <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Tell me of them. Their name and their arrival."</h2>
+                                <div className="space-y-4 max-w-sm mx-auto animate-ethereal-slide-up delay-1000">
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        className="w-full bg-transparent border-b border-indigo-900 focus:border-yellow-500 text-xl py-3 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900"
+                                        placeholder="Their name..."
+                                        value={userData.partnerName}
+                                        onChange={e => setUserData({ ...userData, partnerName: e.target.value })}
+                                    />
+                                    <input
+                                        type="date"
+                                        className="w-full bg-black/40 border border-indigo-900 rounded-xl px-4 py-3 text-sm text-center outline-none text-indigo-100 focus:border-yellow-500 transition-all"
+                                        value={userData.partnerBirthDate}
+                                        onChange={e => setUserData({ ...userData, partnerBirthDate: e.target.value })}
+                                    />
+                                    {(userData.partnerName && userData.partnerBirthDate) && (
+                                        <button onClick={nextIntakeStep} className="mt-4 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs transition-all animate-in fade-in zoom-in">CONNECT ENERGIES</button>
+                                    )}
+                                </div>
+                                {renderInlineBack()}
                             </div>
-                            {renderInlineBack()}
-                        </div>
-                    )}
+                        )
+                    }
 
-                    {intakeSubStep === IntakeSubStep.DELIVERY_INFO && (
-                        <div className="fixed inset-0 z-[100] bg-black flex flex-col overflow-y-auto">
-                            {/* Full screen overlay for Delivery Info step */}
-                            <div className="min-h-screen flex flex-col items-center justify-start pt-20 px-6 relative w-full pb-12">
-                                <VideoBackground />
-
-                                <div className="flex-grow flex flex-col justify-center w-full max-w-4xl mx-auto z-10">
-                                    <div className="text-left max-w-xl mx-auto bg-black/60 backdrop-blur-md p-6 rounded-2xl text-indigo-100 mb-8 border border-indigo-500/30 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-700">
-                                        <h3 className="text-yellow-500 font-bold mb-4 text-xl flex items-center gap-2">
-                                            <i className="fas fa-bolt"></i> Delivery Information
-                                        </h3>
-                                        <ul className="list-none space-y-4 text-sm md:text-base">
-                                            <li className="flex gap-3">
-                                                <span className="bg-indigo-500/20 text-indigo-300 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">1</span>
-                                                <div><strong className="text-indigo-200">Same Hour Reading:</strong> <span className="text-indigo-100/80">Instant clarity delivered within the same hour of your purchase.</span></div>
-                                            </li>
-                                            <li className="flex gap-3">
-                                                <span className="bg-indigo-500/20 text-indigo-300 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">2</span>
-                                                <div><strong className="text-indigo-200">Same Day Reading:</strong> <span className="text-indigo-100/80">A thorough and carefully detailed response delivered within 24 hours.</span></div>
-                                            </li>
-                                            <li className="flex gap-3 pt-2 border-t border-indigo-500/20">
-                                                <span className="text-yellow-500 text-lg mt-0.5"><i className="fas fa-shield-alt"></i></span>
-                                                <div className="text-xs text-indigo-300/60 leading-relaxed"><strong>Legal Disclaimer:</strong> By purchasing this reading you confirm you are 18+ and understand it is for entertainment purposes only. All sales are final.</div>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div className="bg-black/40 p-6 rounded-3xl border border-indigo-900/50 backdrop-blur-sm max-w-xl mx-auto w-full mb-8">
-                                        <p className="text-lg text-indigo-200 italic mb-6 font-serif-mystic text-center">"I have received your energy. I am ready to begin."</p>
+                    {
+                        intakeSubStep === IntakeSubStep.SITUATION && (
+                            <div className="space-y-8 text-center max-w-xl mx-auto">
+                                <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Finally, tell me... what keeps your heart heavy today?"</h2>
+                                <div className="space-y-6 animate-ethereal-slide-up delay-1000">
+                                    <textarea
+                                        autoFocus
+                                        rows={5}
+                                        className="w-full bg-black/40 border border-indigo-900 rounded-3xl p-6 text-lg outline-none text-indigo-100 focus:border-yellow-500 transition-all resize-none shadow-2xl"
+                                        placeholder="Share your situation with Wanda..."
+                                        value={userData.question}
+                                        onChange={e => setUserData({ ...userData, question: e.target.value })}
+                                    />
+                                    {userData.question.length > 10 && (
                                         <button
-                                            onClick={onComplete}
-                                            className="w-full bg-yellow-600 hover:bg-yellow-500 text-black px-8 py-4 rounded-full font-black tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-yellow-600/20 active:scale-95 animate-in fade-in zoom-in uppercase"
+                                            onClick={nextIntakeStep}
+                                            className="bg-yellow-600 text-black px-12 py-4 rounded-full font-black tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-yellow-600/20 active:scale-95 animate-in fade-in zoom-in"
                                         >
-                                            Summon My Initial Vision
+                                            CONTINUE
                                         </button>
+                                    )}
+                                </div>
+                                {renderInlineBack()}
+                            </div>
+                        )
+                    }
+
+                    {
+                        intakeSubStep === IntakeSubStep.EMAIL && (
+                            <div className="space-y-8 text-center">
+                                <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Where shall I send my written vision?"</h2>
+                                <div className="relative max-w-sm mx-auto animate-ethereal-slide-up delay-1000">
+                                    <input
+                                        autoFocus
+                                        type="email"
+                                        className="w-full bg-transparent border-b-2 border-indigo-900 focus:border-yellow-500 text-2xl md:text-2xl text-center py-4 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900"
+                                        placeholder="Your email address..."
+                                        value={userData.email}
+                                        onChange={e => setUserData({ ...userData, email: e.target.value })}
+                                        onKeyDown={e => e.key === 'Enter' && userData.email.includes('@') && nextIntakeStep()}
+                                    />
+                                    {userData.email && userData.email.includes('@') && (
+                                        <button onClick={nextIntakeStep} className="mt-12 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all animate-in fade-in zoom-in">REVEAL MY PATH</button>
+                                    )}
+                                    <p className="mt-4 text-[10px] text-indigo-400/60 uppercase tracking-widest">Strictly Confidential</p>
+                                </div>
+                                {renderInlineBack()}
+                            </div>
+                        )
+                    }
+
+                    {
+                        intakeSubStep === IntakeSubStep.DELIVERY_INFO && (
+                            <div className="fixed inset-0 z-[100] bg-black flex flex-col overflow-y-auto">
+                                {/* Full screen overlay for Delivery Info step */}
+                                <div className="min-h-screen flex flex-col items-center justify-start pt-20 px-6 relative w-full pb-12">
+                                    <VideoBackground />
+
+                                    <div className="flex-grow flex flex-col justify-center w-full max-w-4xl mx-auto z-10">
+                                        <div className="text-left max-w-xl mx-auto bg-black/60 backdrop-blur-md p-6 rounded-2xl text-indigo-100 mb-8 border border-indigo-500/30 shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-700">
+                                            <h3 className="text-yellow-500 font-bold mb-4 text-xl flex items-center gap-2">
+                                                <i className="fas fa-bolt"></i> Delivery Information
+                                            </h3>
+                                            <ul className="list-none space-y-4 text-sm md:text-base">
+                                                <li className="flex gap-3">
+                                                    <span className="bg-indigo-500/20 text-indigo-300 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">1</span>
+                                                    <div><strong className="text-indigo-200">Same Hour Reading:</strong> <span className="text-indigo-100/80">Instant clarity delivered within the same hour of your purchase.</span></div>
+                                                </li>
+                                                <li className="flex gap-3">
+                                                    <span className="bg-indigo-500/20 text-indigo-300 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">2</span>
+                                                    <div><strong className="text-indigo-200">Same Day Reading:</strong> <span className="text-indigo-100/80">A thorough and carefully detailed response delivered within 24 hours.</span></div>
+                                                </li>
+                                                <li className="flex gap-3 pt-2 border-t border-indigo-500/20">
+                                                    <span className="text-yellow-500 text-lg mt-0.5"><i className="fas fa-shield-alt"></i></span>
+                                                    <div className="text-xs text-indigo-300/60 leading-relaxed"><strong>Legal Disclaimer:</strong> By purchasing this reading you confirm you are 18+ and understand it is for entertainment purposes only. All sales are final.</div>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div className="bg-black/40 p-6 rounded-3xl border border-indigo-900/50 backdrop-blur-sm max-w-xl mx-auto w-full mb-8">
+                                            <p className="text-lg text-indigo-200 italic mb-6 font-serif-mystic text-center">"I have received your energy. I am ready to begin."</p>
+                                            <button
+                                                onClick={onComplete}
+                                                className="w-full bg-yellow-600 hover:bg-yellow-500 text-black px-8 py-4 rounded-full font-black tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-yellow-600/20 active:scale-95 animate-in fade-in zoom-in uppercase"
+                                            >
+                                                Summon My Initial Vision
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-full max-w-xl mx-auto mt-auto pb-6 z-10">
+                                        <ReviewSection reviews={reviews} isLoading={isLoading} compact={true} />
                                     </div>
                                 </div>
-
-                                <div className="w-full max-w-xl mx-auto mt-auto pb-6 z-10">
-                                    <ReviewSection reviews={reviews} isLoading={isLoading} compact={true} />
-                                </div>
                             </div>
-                        </div>
-                    )}
+                        )
+                    }
 
-                </div>
-            </div>
+                </div >
+            </div >
         </div >
     );
 };
