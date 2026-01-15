@@ -11,11 +11,14 @@ import { LandingPage } from './components/LandingPage';
 import { IntakeFlow } from './components/IntakeFlow';
 import { PaymentConfirmedPage } from './components/PaymentConfirmedPage';
 import { ReadingRevealPage } from './components/ReadingRevealPage';
+import { PickACardLanding } from './components/PickACardLanding';
 
 const STRIPE_CHECKOUT_LINK = "https://buy.stripe.com/00waEY4C58QN23k4kY6Vq01";
 
 const App: React.FC = () => {
-  const [step, setStep] = useState<AppStep>(AppStep.LANDING);
+  // Default to PICK_A_CARD for the new funnel
+  const [step, setStep] = useState<AppStep>(AppStep.PICK_A_CARD);
+
   // We keep track of intake step here only for the nav bar progress, 
   // but the actual flow logic is handled inside IntakeFlow now.
   // Ideally, we could lift this entirely or let IntakeFlow handle it.
@@ -36,19 +39,7 @@ const App: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const [reviews, setReviews] = useState<Review[]>([]);
-  // ... (keep middle content)
 
-  // ... (keep useEffects)
-
-  const handleStart = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setStep(AppStep.INTAKE);
-      setCurrentIntakeStep(IntakeSubStep.NAME);
-      setIsTransitioning(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 800);
-  };
   const [heroContent, setHeroContent] = useState({
     title: "Discover Your True\u00A0Path",
     subtitle: "Receive deep psychic insights into love, career, and your soul's purpose.",
@@ -62,6 +53,34 @@ const App: React.FC = () => {
   });
   const [isLocalizing, setIsLocalizing] = useState(false);
 
+  // Handlers for Pick A Card Flow
+  const handlePickCardComplete = (data: Partial<UserData>) => {
+    setUserData(prev => ({ ...prev, ...data }));
+    // Move to Intake, directly to Name step (Step 0)
+    setStep(AppStep.INTAKE);
+    setCurrentIntakeStep(IntakeSubStep.NAME);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePickCardSkip = () => {
+    // If they skip, they go to the standard Landing Page?
+    // User said "I have a specific question (Skip)".
+    // Maybe straight to Intake? Or the Landing text page?
+    // Let's send them to the Landing Page to get the "Discover" experience first.
+    setStep(AppStep.LANDING);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleStart = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setStep(AppStep.INTAKE);
+      setCurrentIntakeStep(IntakeSubStep.NAME);
+      setIsTransitioning(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 800);
+  };
+
   useEffect(() => {
     // Initialize reviews (dynamic daily rotation)
     const dailyReviews = getDailyReviews(REVIEWS);
@@ -74,6 +93,7 @@ const App: React.FC = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const paymentSuccess = urlParams.get('payment_success');
       const debugView = urlParams.get('view');
+      const startNormal = urlParams.get('normal'); // Bypass pick-a-card logic if needed ?normal=true
 
       if (paymentSuccess === 'true') {
         const savedReadingId = localStorage.getItem('wanda_reading_id');
@@ -97,6 +117,8 @@ const App: React.FC = () => {
             console.error("Supabase error:", err);
           }
         }
+      } else if (startNormal) {
+        setStep(AppStep.LANDING);
       } else if (debugView) {
         // Debugging / Direct Navigation Routes
         switch (debugView.toLowerCase()) {
@@ -333,18 +355,18 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!audioRef.current) return;
 
-    if (step === AppStep.LANDING) {
+    if (step === AppStep.LANDING && !isMuted) {
+      // Optional: Don't auto-play on landing unless we want to? 
+      // Previous code didn't play on Landing? Let's check logic.
+      // Original: if (step === AppStep.LANDING) audioRef.current.pause();
+      // I will keep original logic -> SILENCE on Landing.
       audioRef.current.pause();
-    } else {
+    } else if (step !== AppStep.LANDING) {
       // If we are NOT on landing, follow isMuted state
       if (!isMuted) {
         // Try to play. If browser blocks it (no interaction yet), it will catch.
         audioRef.current.play().catch(e => {
           // Expected if user hasn't interacted yet.
-          // The enableAudio listener above handles the "first click" unlock implicitly 
-          // because once they click, we can play. 
-          // Actually, if this fails, we might want to try again on interaction.
-          // But let's assume the user clicked "Start" to get here, so interaction IS guaranteed.
           console.log("Playback prevented:", e);
         });
       } else {
@@ -367,7 +389,8 @@ const App: React.FC = () => {
   const progressPercentage = ((currentIntakeStep + 1) / 7) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-indigo-500/30 relative">
+    <div className="min-h-screen bg-[#0a0510] text-indigo-100 flex flex-col font-sans selection:bg-yellow-500/30">
+      {/* Background & Nav */}
       <nav className="border-b border-indigo-900/50 bg-black/60 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <h1 className="text-lg md:text-xl font-serif-mystic text-indigo-100 tracking-widest flex items-center gap-2 cursor-pointer" onClick={() => window.location.href = window.location.pathname}>
@@ -401,7 +424,15 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className="flex-grow flex flex-col">
+      <main className="flex-grow flex flex-col relative z-10">
+
+        {step === AppStep.PICK_A_CARD && (
+          <PickACardLanding
+            onComplete={handlePickCardComplete}
+            onSkip={handlePickCardSkip}
+          />
+        )}
+
         {step === AppStep.LANDING && (
           <LandingPage
             heroContent={heroContent}
@@ -431,26 +462,7 @@ const App: React.FC = () => {
         )}
 
         {step === AppStep.PROCESSING && (
-          /* Note: Using ReadingRevealPage for PROCESSING step logic as per original structure, 
-             though strictly speaking PROCESSING usually implies a loader. 
-             The original code rendered the result immediately if data was available. 
-             Since we redirect to Stripe now, this state is mostly for the redirect message 
-             OR if there's a legacy flow where result is shown. 
-             Currently, handleIntakeComplete sets PROCESSING then redirects. 
-             So this might just show the "Redirecting..." text or the result if logic changes.
-             
-             Wait, the original code had:
-             step === AppStep.PROCESSING && ( ... Render ReviewSection + Results ... )
-             
-             Let's check logic:
-             finalizeIntake -> setStep(PROCESSING) -> set timeout -> redirect.
-             So typically user sees PROCESSING for 1.2s.
-             BUT, logic also allowed showing results if reading was set.
-             
-             For now, let's keep ReadingRevealPage here, but maybe wrapped or handled carefully.
-          */
           <div className="flex-grow flex flex-col items-center justify-center min-h-[50vh]">
-            {/* If we are just redirecting, maybe specific simple loader? */}
             {!reading && (
               <div className="text-center space-y-4">
                 <div className="animate-spin text-yellow-500 text-4xl"><i className="fas fa-circle-notch"></i></div>
@@ -458,7 +470,6 @@ const App: React.FC = () => {
               </div>
             )}
 
-            {/* If we strictly want to support the View Result flow (e.g. for testing/legacy), we render ReadingRevealPage */}
             {reading && (
               <ReadingRevealPage
                 userData={userData}

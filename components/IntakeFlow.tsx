@@ -50,6 +50,16 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
             handleTransition(() => {
                 let nextStep = intakeSubStep + 1;
 
+                // Skip Category selection if already defined (e.g. from Pick A Card flow)
+                if (nextStep === IntakeSubStep.CATEGORY && userData.readingCategory) {
+                    nextStep = IntakeSubStep.SUB_PATH;
+
+                    // Optimization: If we already have the sub-details? No, PickACard gives Category only (Love, Career, General).
+                    // But wait, my PickACard component only sets 'readingCategory' (Love/Career/General) and 'cardPile'.
+                    // It does NOT set the specific 'readingType' sub-path (Twin Flame, Employed, etc).
+                    // So we MUST go to SUB_PATH. A-OK.
+                }
+
                 // Branching Logic
                 if (intakeSubStep === IntakeSubStep.SUB_PATH) {
                     // After Sub-Path, decide where to go
