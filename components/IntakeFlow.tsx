@@ -516,28 +516,122 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
                     {
                         intakeSubStep === IntakeSubStep.SITUATION && (
-                            <div className="space-y-8 text-center max-w-xl mx-auto">
-                                <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Finally, tell me... what keeps your heart heavy today?"</h2>
-                                <div className="space-y-6 animate-ethereal-slide-up delay-1000">
-                                    <textarea
-                                        autoFocus
-                                        rows={5}
-                                        className="w-full bg-black/40 border border-indigo-900 rounded-3xl p-6 text-lg outline-none text-indigo-100 focus:border-yellow-500 transition-all resize-none shadow-2xl"
-                                        placeholder="Share your situation with Wanda..."
-                                        value={userData.question}
-                                        onChange={e => setUserData({ ...userData, question: e.target.value })}
-                                    />
-                                    {userData.question.length > 10 && (
-                                        <button
-                                            onClick={nextIntakeStep}
-                                            className="bg-yellow-600 text-black px-12 py-4 rounded-full font-black tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-yellow-600/20 active:scale-95 animate-in fade-in zoom-in"
-                                        >
-                                            CONTINUE
-                                        </button>
-                                    )}
+                            userData.readingCategory === 'CardPile' ? (
+                                // Card Pile Specific Detail Screen
+                                <div className="space-y-8 text-center w-full max-w-4xl mx-auto">
+                                    <div className="animate-ethereal-fade-in flex flex-col items-center">
+
+                                        {/* 1. Glowing Thumbnail */}
+                                        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md border border-yellow-500/30 px-6 py-3 rounded-full shadow-[0_0_20px_rgba(234,179,8,0.15)] mb-8 animate-in fade-in slide-in-from-top-4">
+                                            <div className="w-10 h-14 rounded-md overflow-hidden border border-yellow-500/50 shadow-sm relative">
+                                                <img
+                                                    src={
+                                                        userData.cardPile === 'Pile 1' ? '/images/piles/pile1.png' :
+                                                            userData.cardPile === 'Pile 2' ? '/images/piles/pile2.png' :
+                                                                '/images/piles/pile3.png'
+                                                    }
+                                                    alt="Selected Pile"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <div className="absolute inset-0 bg-yellow-500/20 animate-pulse"></div>
+                                            </div>
+                                            <span className="text-yellow-500 font-bold tracking-widest text-xs">{userData.cardPile?.toUpperCase()} SELECTED</span>
+                                        </div>
+
+                                        {/* Dynamic Headlines & Inputs */}
+                                        <div className="w-full max-w-xl space-y-8 animate-ethereal-slide-up delay-200">
+                                            {userData.focusArea === 'Love' ? (
+                                                <>
+                                                    <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 leading-tight">
+                                                        "Who is the other person involved?"
+                                                    </h2>
+                                                    <div className="space-y-6">
+                                                        {/* Partner Name Input (Optional) */}
+                                                        <div className="group relative">
+                                                            <input
+                                                                type="text"
+                                                                autoFocus
+                                                                className="w-full bg-transparent border-b border-indigo-900 focus:border-yellow-500 text-xl py-3 outline-none text-indigo-100 transition-all font-light placeholder-indigo-900/50 text-center"
+                                                                placeholder="Partner's Name (Optional)"
+                                                                value={userData.partnerName || ''}
+                                                                onChange={e => setUserData({ ...userData, partnerName: e.target.value })}
+                                                            />
+                                                            <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-yellow-500 group-focus-within:w-full transition-all duration-500 ease-out"></div>
+                                                        </div>
+
+                                                        {/* Situation Textarea */}
+                                                        <div className="space-y-2">
+                                                            <p className="text-indigo-300/80 text-sm font-light">Tell Wanda about your situation. What keeps you up at night regarding this connection?</p>
+                                                            <textarea
+                                                                rows={4}
+                                                                className="w-full bg-black/20 border border-indigo-900/50 rounded-2xl p-4 text-base outline-none text-indigo-100 focus:border-yellow-500/50 transition-all resize-none shadow-inner focus:bg-indigo-950/20"
+                                                                placeholder="I'm wondering if..."
+                                                                value={userData.question}
+                                                                onChange={e => setUserData({ ...userData, question: e.target.value })}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 leading-tight">
+                                                        "Let's focus on your path."
+                                                    </h2>
+                                                    <div className="space-y-2">
+                                                        <p className="text-indigo-300/80 text-sm font-light">Describe your current obstacle or the goal you wish to manifest.</p>
+                                                        <textarea
+                                                            autoFocus
+                                                            rows={5}
+                                                            className="w-full bg-black/20 border border-indigo-900/50 rounded-2xl p-4 text-base outline-none text-indigo-100 focus:border-yellow-500/50 transition-all resize-none shadow-inner focus:bg-indigo-950/20"
+                                                            placeholder="I feel blocked by..."
+                                                            value={userData.question}
+                                                            onChange={e => setUserData({ ...userData, question: e.target.value })}
+                                                        />
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {/* Unlock Button */}
+                                            {userData.question.length > 5 && (
+                                                <button
+                                                    onClick={nextIntakeStep}
+                                                    className="w-full bg-gradient-to-r from-yellow-600 to-purple-800 hover:from-yellow-500 hover:to-purple-700 text-white border border-yellow-500/30 px-8 py-5 rounded-xl font-bold tracking-[0.2em] text-sm transition-all shadow-[0_0_25px_rgba(234,179,8,0.2)] hover:shadow-[0_0_40px_rgba(147,51,234,0.4)] active:scale-[0.98] animate-in fade-in zoom-in group relative overflow-hidden"
+                                                >
+                                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                                        UNLOCK MY FULL READING <i className="fas fa-lock-open text-yellow-300"></i>
+                                                    </span>
+                                                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {renderInlineBack()}
                                 </div>
-                                {renderInlineBack()}
-                            </div>
+                            ) : (
+                                // Generic UI for Other Categories (Original Code)
+                                <div className="space-y-8 text-center max-w-xl mx-auto">
+                                    <h2 className="text-2xl md:text-4xl font-serif-mystic text-indigo-100 animate-ethereal-slide-up delay-200">"Finally, tell me... what keeps your heart heavy today?"</h2>
+                                    <div className="space-y-6 animate-ethereal-slide-up delay-1000">
+                                        <textarea
+                                            autoFocus
+                                            rows={5}
+                                            className="w-full bg-black/40 border border-indigo-900 rounded-3xl p-6 text-lg outline-none text-indigo-100 focus:border-yellow-500 transition-all resize-none shadow-2xl"
+                                            placeholder="Share your situation with Wanda..."
+                                            value={userData.question}
+                                            onChange={e => setUserData({ ...userData, question: e.target.value })}
+                                        />
+                                        {userData.question.length > 10 && (
+                                            <button
+                                                onClick={nextIntakeStep}
+                                                className="bg-yellow-600 text-black px-12 py-4 rounded-full font-black tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-yellow-600/20 active:scale-95 animate-in fade-in zoom-in"
+                                            >
+                                                CONTINUE
+                                            </button>
+                                        )}
+                                    </div>
+                                    {renderInlineBack()}
+                                </div>
+                            )
                         )
                     }
 
