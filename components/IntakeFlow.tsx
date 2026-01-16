@@ -120,13 +120,21 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
     const handleDateSubmit = () => {
         if (!userData.birthDate) return;
-        const year = parseInt(userData.birthDate.split('-')[0]);
-        const currentYear = new Date().getFullYear();
-        if (year > 1900 && year <= currentYear) {
+        const birthDate = new Date(userData.birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        // Rule: Must be at least 10 years old (and reasonable year)
+        if (birthDate.getFullYear() > 1900 && age >= 10) {
             setShowDateError(false);
             nextIntakeStep();
         } else {
-            setShowDateError(true);
+            setShowDateError(true); // Shows generic "Please enter a valid birth year"
         }
     };
 
