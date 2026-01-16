@@ -688,7 +688,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
             {
                 intakeSubStep === IntakeSubStep.DELIVERY_INFO && (
-                    <div className="fixed inset-0 z-[200] bg-black flex flex-col overflow-y-auto animate-in fade-in duration-1000">
+                    <div className="fixed inset-0 z-[200] bg-black flex flex-col overflow-y-auto animate-fade-in-slow">
                         {/* Full screen overlay for Delivery Info step */}
                         <div className="min-h-screen flex flex-col items-center justify-start pt-20 px-6 relative w-full pb-12">
                             <VideoBackground />
