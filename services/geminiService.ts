@@ -91,7 +91,9 @@ export const getInitialReading = async (userData: UserData): Promise<ReadingResp
     console.error("Gemini Error:", error);
     return {
       teaser: "The cards are swirling with a deep indigo light, suggesting a secret soon to be revealed in your heart.",
-      energySignature: "A radiant, shimmering aura of anticipation and growth."
+      energySignature: userData.readingCategory === 'CardPile' && userData.cardPile
+        ? `The energy of ${userData.cardPile} surrounds you with a radiant aura of anticipation and growth.`
+        : "A radiant, shimmering aura of anticipation and growth."
     };
   }
 };
