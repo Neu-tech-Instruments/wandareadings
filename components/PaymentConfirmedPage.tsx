@@ -28,7 +28,7 @@ export const PaymentConfirmedPage: React.FC<PaymentConfirmedPageProps> = ({ user
                         </div>
                         <div className="flex-1">
                             <p className="text-indigo-100 text-base md:text-lg font-serif-mystic italic leading-relaxed">
-                                "Thank you, {userData.name}. I have received your energy and your question. I am now channeling the cosmos to bring you the clarity you seek."
+                                "Thank you, {userData.name}. I have received your energy and your question."
                             </p>
                         </div>
                     </div>
@@ -40,7 +40,7 @@ export const PaymentConfirmedPage: React.FC<PaymentConfirmedPageProps> = ({ user
                             </div>
                             <div>
                                 <h3 className="text-indigo-100 font-semibold text-sm md:text-base">You'll Receive an Email</h3>
-                                <p className="text-indigo-300/80 text-xs md:text-sm">Your personalized reading will be delivered to your inbox</p>
+                                <p className="text-indigo-300/80 text-xs md:text-sm">Your customized written reading will be sent to your inbox</p>
                             </div>
                         </div>
 
@@ -50,17 +50,17 @@ export const PaymentConfirmedPage: React.FC<PaymentConfirmedPageProps> = ({ user
                             </div>
                             <div>
                                 <h3 className="text-indigo-100 font-semibold text-sm md:text-base">Delivery Timeline</h3>
-                                <p className="text-indigo-300/80 text-xs md:text-sm">Within 24 hours • Most readings delivered same day</p>
+                                <p className="text-indigo-300/80 text-xs md:text-sm">Priority Access: Within 60 Minutes</p>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-indigo-600/20 flex items-center justify-center flex-shrink-0">
-                                <i className="fas fa-video text-yellow-500"></i>
+                                <i className="fas fa-scroll text-yellow-500"></i>
                             </div>
                             <div>
-                                <h3 className="text-indigo-100 font-semibold text-sm md:text-base">Personal Video Reading</h3>
-                                <p className="text-indigo-300/80 text-xs md:text-sm">Wanda will personally channel your message on video</p>
+                                <h3 className="text-indigo-100 font-semibold text-sm md:text-base">Detailed Written Vision</h3>
+                                <p className="text-indigo-300/80 text-xs md:text-sm">Wanda is transcribing your messages from the cards now</p>
                             </div>
                         </div>
 
@@ -104,16 +104,18 @@ export const PaymentConfirmedPage: React.FC<PaymentConfirmedPageProps> = ({ user
 
                     <button
                         onClick={() => window.location.href = window.location.pathname}
-                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all border border-indigo-500/50 hover:border-indigo-400 mt-6"
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all border border-indigo-500/50 hover:border-indigo-400 mt-6 uppercase"
                     >
-                        RETURN HOME
+                        I Await My Message (Close)
                     </button>
                 </div>
 
-                <p className="text-center text-indigo-500 text-xs mt-6 animate-in fade-in duration-700 delay-300">
-                    <i className="fas fa-moon mr-2"></i>
-                    The universe is aligning for your reading
-                </p>
+                <div className="mt-8 flex items-center justify-center gap-3 animate-pulse">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-ping"></div>
+                    <p className="text-center text-yellow-500/80 text-sm font-semibold tracking-widest uppercase">
+                        Channeling the Cosmos...
+                    </p>
+                </div>
             </div>
         </div>
     );
