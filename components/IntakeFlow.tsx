@@ -64,6 +64,11 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     const nextIntakeStep = () => {
         if (intakeSubStep === IntakeSubStep.DELIVERY_INFO) {
             onComplete();
+        } else if (intakeSubStep === IntakeSubStep.EMAIL) {
+            // Instant transition for Delivery Info overlay
+            const nextStep = IntakeSubStep.DELIVERY_INFO;
+            setIntakeSubStep(nextStep);
+            onStepChange?.(nextStep);
         } else {
             handleTransition(() => {
                 let nextStep = intakeSubStep + 1;
@@ -81,8 +86,6 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                     }
                 } else if (intakeSubStep === IntakeSubStep.CARD_REVEAL) {
                     nextStep = IntakeSubStep.SITUATION;
-                } else if (intakeSubStep === IntakeSubStep.EMAIL) {
-                    nextStep = IntakeSubStep.DELIVERY_INFO;
                 }
 
                 setIntakeSubStep(nextStep);
