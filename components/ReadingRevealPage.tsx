@@ -103,12 +103,35 @@ export const ReadingRevealPage: React.FC<ReadingRevealPageProps> = ({ userData, 
                             <p className="text-[9px] uppercase tracking-widest text-yellow-500/60 font-bold">Seeker Profile</p>
                             <p className="font-serif-mystic text-indigo-100 text-sm md:text-base">{userData.name} <span className="text-indigo-400 font-sans text-xs">({userData.birthDate})</span></p>
                         </div>
-                        {userData.partnerName && (
-                            <div className="space-y-1 sm:text-right text-left">
-                                <p className="text-[9px] uppercase tracking-widest text-yellow-500/60 font-bold">Intertwined Soul</p>
-                                <p className="font-serif-mystic text-indigo-100 text-sm md:text-base">{userData.partnerName} <span className="text-indigo-400 font-sans text-xs">({userData.partnerBirthDate})</span></p>
-                            </div>
-                        )}
+                        {(() => {
+                            let headerLabel = 'Intertwined Soul';
+                            let headerValue = userData.partnerName;
+                            let headerSub = userData.partnerBirthDate ? `(${userData.partnerBirthDate})` : '';
+
+                            const isCareer = userData.readingCategory === 'Career' || userData.focusArea === 'Career';
+                            const isPurpose = userData.readingCategory === 'General' || userData.focusArea === 'Soul Purpose' || userData.focusArea === "Soul's Purpose";
+
+                            if (isCareer) {
+                                headerLabel = 'Current Path';
+                                headerValue = userData.careerStatus || (['Pile 1', 'Pile 2', 'Pile 3'].includes(userData.readingType) ? 'Career & Wealth' : userData.readingType);
+                                headerSub = '';
+                            } else if (isPurpose) {
+                                headerLabel = 'Focus Area';
+                                headerValue = 'Life Purpose';
+                                headerSub = '';
+                            }
+
+                            if (!headerValue) return null;
+
+                            return (
+                                <div className="space-y-1 sm:text-right text-left">
+                                    <p className="text-[9px] uppercase tracking-widest text-yellow-500/60 font-bold">{headerLabel}</p>
+                                    <p className="font-serif-mystic text-indigo-100 text-sm md:text-base">
+                                        {headerValue} <span className="text-indigo-400 font-sans text-xs">{headerSub}</span>
+                                    </p>
+                                </div>
+                            );
+                        })()}
                     </div>
 
                     {reading && (
