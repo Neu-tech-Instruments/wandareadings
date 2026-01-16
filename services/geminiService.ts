@@ -63,7 +63,8 @@ export const getInitialReading = async (userData: UserData): Promise<ReadingResp
       Instructions:
       1. Analyze the spiritual vibration of their question and connection/situation.
       2. Provide a mysterious yet comforting 2-sentence "initial vision" or "teaser".
-      3. Provide a 1-sentence description of their "Energy Signature" based on the names/energies provided.
+      3. Provide a 1-sentence description of their "Energy Signature". 
+         ${userData.readingCategory === 'CardPile' ? `IMPORTANT: The Energy Signature MUST start with: "The energy of ${userData.cardPile} surrounds you with a radiant aura of..."` : 'Based on the names/energies provided.'}
       4. DO NOT give the full answer. Be slightly cryptic to encourage them to proceed to the full reading.`,
       config: {
         responseMimeType: "application/json",
