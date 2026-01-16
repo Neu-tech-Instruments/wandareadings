@@ -287,6 +287,17 @@ const App: React.FC = () => {
     } else {
       // REGULAR USER: Redirect to Payment
       setLoadingText("Redirecting to Secure Payment...");
+
+      // Start Fade Out
+      const fadeAudio = setInterval(() => {
+        if (audioRef.current && audioRef.current.volume > 0.05) {
+          audioRef.current.volume = Math.max(0, audioRef.current.volume - 0.05);
+        } else if (audioRef.current) {
+          audioRef.current.volume = 0;
+          clearInterval(fadeAudio);
+        }
+      }, 100);
+
       setTimeout(() => {
         const baseUrl = STRIPE_CHECKOUT_LINK;
         const params = new URLSearchParams();
@@ -298,7 +309,7 @@ const App: React.FC = () => {
         if (readingId) params.append('client_reference_id', readingId);
 
         window.location.href = `${baseUrl}?${params.toString()}`;
-      }, 1200);
+      }, 1500);
     }
   };
 
