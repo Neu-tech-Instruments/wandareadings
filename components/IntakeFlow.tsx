@@ -711,7 +711,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         onClick={onComplete}
                                         className="w-full bg-yellow-600 hover:bg-yellow-500 text-black px-8 py-4 rounded-full font-black tracking-widest text-xs md:text-sm transition-all shadow-xl shadow-yellow-600/20 active:scale-95 animate-in fade-in zoom-in uppercase"
                                     >
-                                        Summon My Initial Vision
+                                        Begin The Ritual & Send to Wanda
                                     </button>
                                 </div>
                             </div>
