@@ -288,7 +288,16 @@ const App: React.FC = () => {
       // REGULAR USER: Redirect to Payment
       setLoadingText("Redirecting to Secure Payment...");
       setTimeout(() => {
-        window.location.href = STRIPE_CHECKOUT_LINK;
+        const baseUrl = STRIPE_CHECKOUT_LINK;
+        const params = new URLSearchParams();
+
+        if (userData.email) params.append('prefilled_email', userData.email);
+
+        // Link payment to the specific reading ID in Supabase
+        const readingId = localStorage.getItem('wanda_reading_id');
+        if (readingId) params.append('client_reference_id', readingId);
+
+        window.location.href = `${baseUrl}?${params.toString()}`;
       }, 1200);
     }
   };
