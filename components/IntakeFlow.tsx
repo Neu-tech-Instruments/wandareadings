@@ -130,6 +130,13 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
         }
     };
 
+    const goToDelivery = () => {
+        const nextStep = IntakeSubStep.DELIVERY_INFO;
+        setIntakeSubStep(nextStep);
+        onStepChange?.(nextStep);
+        window.scrollTo({ top: 0, behavior: 'auto' }); // force instant scroll
+    };
+
     const renderInlineBack = () => (
         <button
             onClick={intakeSubStep === IntakeSubStep.NAME ? onBack : handleBack}
@@ -653,10 +660,10 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         placeholder="Your email address..."
                                         value={userData.email}
                                         onChange={e => setUserData({ ...userData, email: e.target.value })}
-                                        onKeyDown={e => e.key === 'Enter' && userData.email.includes('@') && nextIntakeStep()}
+                                        onKeyDown={e => e.key === 'Enter' && userData.email.includes('@') && goToDelivery()}
                                     />
                                     {userData.email && userData.email.includes('@') && (
-                                        <button onClick={nextIntakeStep} className="mt-12 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all animate-in fade-in zoom-in">REVEAL MY PATH</button>
+                                        <button onClick={goToDelivery} className="mt-12 bg-indigo-600 text-white px-8 py-3 rounded-full font-bold tracking-widest text-xs md:text-sm transition-all animate-in fade-in zoom-in">REVEAL MY PATH</button>
                                     )}
                                     <p className="mt-4 text-[10px] text-indigo-400/60 uppercase tracking-widest">Strictly Confidential</p>
                                 </div>
