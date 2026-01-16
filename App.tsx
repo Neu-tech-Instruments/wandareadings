@@ -12,7 +12,7 @@ import { IntakeFlow } from './components/IntakeFlow';
 import { PaymentConfirmedPage } from './components/PaymentConfirmedPage';
 import { ReadingRevealPage } from './components/ReadingRevealPage';
 
-const STRIPE_CHECKOUT_LINK = "https://buy.stripe.com/00waEY4C58QN23k4kY6Vq01";
+const STRIPE_CHECKOUT_LINK = "https://buy.stripe.com/aFa7sMecFaYV6jAaJm6Vq02";
 
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>(AppStep.LANDING);
