@@ -113,7 +113,7 @@ export const ReadingRevealPage: React.FC<ReadingRevealPageProps> = ({ userData, 
 
                             if (isCareer) {
                                 headerLabel = 'Current Path';
-                                headerValue = userData.careerStatus || (['Pile 1', 'Pile 2', 'Pile 3'].includes(userData.readingType) ? 'Career & Wealth' : userData.readingType);
+                                headerValue = userData.careerStatus || (['The Red Path', 'The Blue Path', 'The Green Path'].includes(userData.readingType) ? 'Career & Wealth' : userData.readingType);
                                 headerSub = '';
                             } else if (isPurpose) {
                                 headerLabel = 'Focus Area';

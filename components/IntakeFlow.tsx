@@ -267,9 +267,9 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                                     >
                                         {[
-                                            { id: 'Pile 1', img: '/cards/red.png', label: '✨ PILE 1' },
-                                            { id: 'Pile 2', img: '/cards/blue.png', label: '🔮 PILE 2' },
-                                            { id: 'Pile 3', img: '/cards/green.png', label: '🌙 PILE 3' }
+                                            { id: 'The Red Path', img: '/cards/red.png', label: 'THE RED PATH' },
+                                            { id: 'The Blue Path', img: '/cards/blue.png', label: 'THE BLUE PATH' },
+                                            { id: 'The Green Path', img: '/cards/green.png', label: 'THE GREEN PATH' }
                                         ].map((pile, idx) => (
                                             <div
                                                 key={pile.id}
@@ -329,9 +329,9 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         <button
                                             onClick={() => {
                                                 const piles = [
-                                                    { id: 'Pile 1', label: '✨ PILE 1' },
-                                                    { id: 'Pile 2', label: '🔮 PILE 2' },
-                                                    { id: 'Pile 3', label: '🌙 PILE 3' }
+                                                    { id: 'The Red Path', label: 'THE RED PATH' },
+                                                    { id: 'The Blue Path', label: 'THE BLUE PATH' },
+                                                    { id: 'The Green Path', label: 'THE GREEN PATH' }
                                                 ];
                                                 const selectedPile = piles[activePileIndex];
 
@@ -345,9 +345,9 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                             className="w-full bg-indigo-950/60 backdrop-blur-md border border-yellow-500/50 text-yellow-400 py-4 rounded-xl font-bold tracking-[0.2em] text-lg shadow-[0_0_15px_rgba(234,179,8,0.15)] animate-in fade-in slide-in-from-bottom-4"
                                         >
                                             {[
-                                                '✨ PILE 1',
-                                                '🔮 PILE 2',
-                                                '🌙 PILE 3'
+                                                'THE RED PATH',
+                                                'THE BLUE PATH',
+                                                'THE GREEN PATH'
                                             ][activePileIndex]}
                                         </button>
                                     </div>
@@ -414,8 +414,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     <div className="relative w-full h-full overflow-hidden rounded-2xl border-2 border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform transition-transform duration-700 hover:scale-[1.02]">
                                         <img
                                             src={
-                                                userData.cardPile === 'Pile 1' ? '/cards/red.png' :
-                                                    userData.cardPile === 'Pile 2' ? '/cards/blue.png' :
+                                                userData.cardPile === 'The Red Path' ? '/cards/red.png' :
+                                                    userData.cardPile === 'The Blue Path' ? '/cards/blue.png' :
                                                         '/cards/green.png'
                                             }
                                             alt={userData.cardPile}
@@ -548,8 +548,8 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                             <div className="w-10 h-14 rounded-md overflow-hidden border border-yellow-500/50 shadow-sm relative">
                                                 <img
                                                     src={
-                                                        userData.cardPile === 'Pile 1' ? '/cards/red.png' :
-                                                            userData.cardPile === 'Pile 2' ? '/cards/blue.png' :
+                                                        userData.cardPile === 'The Red Path' ? '/cards/red.png' :
+                                                            userData.cardPile === 'The Blue Path' ? '/cards/blue.png' :
                                                                 '/cards/green.png'
                                                     }
                                                     alt="Selected Pile"
