@@ -139,10 +139,11 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
     };
 
     const goToDelivery = () => {
-        const nextStep = IntakeSubStep.DELIVERY_INFO;
-        setIntakeSubStep(nextStep);
-        onStepChange?.(nextStep);
-        window.scrollTo({ top: 0, behavior: 'auto' }); // force instant scroll
+        handleTransition(() => {
+            const nextStep = IntakeSubStep.DELIVERY_INFO;
+            setIntakeSubStep(nextStep);
+            onStepChange?.(nextStep);
+        });
     };
 
     const renderInlineBack = () => (
@@ -687,7 +688,7 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
 
             {
                 intakeSubStep === IntakeSubStep.DELIVERY_INFO && (
-                    <div className="fixed inset-0 z-[200] bg-black flex flex-col overflow-y-auto">
+                    <div className="fixed inset-0 z-[200] bg-black flex flex-col overflow-y-auto animate-in fade-in duration-1000">
                         {/* Full screen overlay for Delivery Info step */}
                         <div className="min-h-screen flex flex-col items-center justify-start pt-20 px-6 relative w-full pb-12">
                             <VideoBackground />
