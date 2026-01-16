@@ -267,9 +267,9 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                                     >
                                         {[
-                                            { id: 'Pile 1', img: '/images/piles/pile1.png', label: '✨ PILE 1' },
-                                            { id: 'Pile 2', img: '/images/piles/pile2.png', label: '🔮 PILE 2' },
-                                            { id: 'Pile 3', img: '/images/piles/pile3.png', label: '🌙 PILE 3' }
+                                            { id: 'Pile 1', img: '/cards/red.png', label: '✨ PILE 1' },
+                                            { id: 'Pile 2', img: '/cards/blue.png', label: '🔮 PILE 2' },
+                                            { id: 'Pile 3', img: '/cards/green.png', label: '🌙 PILE 3' }
                                         ].map((pile, idx) => (
                                             <div
                                                 key={pile.id}
@@ -414,9 +414,9 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                     <div className="relative w-full h-full overflow-hidden rounded-2xl border-2 border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.3)] transform transition-transform duration-700 hover:scale-[1.02]">
                                         <img
                                             src={
-                                                userData.cardPile === 'Pile 1' ? '/images/piles/pile1.png' :
-                                                    userData.cardPile === 'Pile 2' ? '/images/piles/pile2.png' :
-                                                        '/images/piles/pile3.png'
+                                                userData.cardPile === 'Pile 1' ? '/cards/red.png' :
+                                                    userData.cardPile === 'Pile 2' ? '/cards/blue.png' :
+                                                        '/cards/green.png'
                                             }
                                             alt={userData.cardPile}
                                             className="w-full h-full object-cover"
@@ -548,9 +548,9 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                             <div className="w-10 h-14 rounded-md overflow-hidden border border-yellow-500/50 shadow-sm relative">
                                                 <img
                                                     src={
-                                                        userData.cardPile === 'Pile 1' ? '/images/piles/pile1.png' :
-                                                            userData.cardPile === 'Pile 2' ? '/images/piles/pile2.png' :
-                                                                '/images/piles/pile3.png'
+                                                        userData.cardPile === 'Pile 1' ? '/cards/red.png' :
+                                                            userData.cardPile === 'Pile 2' ? '/cards/blue.png' :
+                                                                '/cards/green.png'
                                                     }
                                                     alt="Selected Pile"
                                                     className="w-full h-full object-cover"
