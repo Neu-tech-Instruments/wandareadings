@@ -698,14 +698,6 @@ export const IntakeFlow: React.FC<IntakeFlowProps> = ({
                                         <i className="fas fa-bolt"></i> Delivery Information
                                     </h3>
                                     <ul className="list-none space-y-4 text-sm md:text-base">
-                                        <li className="flex gap-3">
-                                            <span className="bg-indigo-500/20 text-indigo-300 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">1</span>
-                                            <div><strong className="text-indigo-200">Same Hour Reading:</strong> <span className="text-indigo-100/80">Instant clarity delivered within the same hour of your purchase.</span></div>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <span className="bg-indigo-500/20 text-indigo-300 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">2</span>
-                                            <div><strong className="text-indigo-200">Same Day Reading:</strong> <span className="text-indigo-100/80">A thorough and carefully detailed response delivered within 24 hours.</span></div>
-                                        </li>
                                         <li className="flex gap-3 pt-2 border-t border-indigo-500/20">
                                             <span className="text-yellow-500 text-lg mt-0.5"><i className="fas fa-shield-alt"></i></span>
                                             <div className="text-xs text-indigo-300/60 leading-relaxed"><strong>Legal Disclaimer:</strong> By purchasing this reading you confirm you are 18+ and understand it is for entertainment purposes only. All sales are final.</div>
