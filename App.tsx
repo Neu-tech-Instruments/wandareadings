@@ -5,6 +5,7 @@ import { getInitialReading, localizeExperience, getFullReading, FullReadingConte
 import { REVIEWS } from './src/data/reviews';
 import { getDailyReviews } from './src/services/reviewRotator';
 import { supabase } from './src/services/supabaseClient';
+import { Analytics } from '@vercel/analytics/react';
 
 // Components
 import { LandingPage } from './components/LandingPage';
@@ -503,6 +504,8 @@ const App: React.FC = () => {
           <p className="text-[9px] md:text-[10px] text-indigo-700 uppercase tracking-[0.3em] font-medium mt-2 hover:text-indigo-400 transition-colors cursor-pointer"><a href="mailto:info@wandareadings.com">info@wandareadings.com</a></p>
         </div>
       </footer>
+
+      <Analytics />
     </div>
   );
 };
